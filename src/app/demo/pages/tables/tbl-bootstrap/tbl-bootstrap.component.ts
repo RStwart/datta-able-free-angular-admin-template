@@ -1,11 +1,10 @@
 import { Component } from '@angular/core';
-import { SharedModule } from 'src/app/theme/shared/shared.module';
 
 @Component({
   selector: 'app-tbl-bootstrap',
-  standalone: true,
-  imports: [SharedModule],
   templateUrl: './tbl-bootstrap.component.html',
-  styleUrls: ['./tbl-bootstrap.component.scss']
+  styleUrls: ['./tbl-bootstrap.component.css']
 })
-export default class TblBootstrapComponent {}
+export class TblBootstrapComponent {
+  // Lógica do componente
+}

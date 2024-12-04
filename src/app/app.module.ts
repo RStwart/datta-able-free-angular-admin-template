@@ -4,6 +4,7 @@ import { BrowserModule } from '@angular/platform-browser';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AppRoutingModule } from './app-routing.module';
+import { HttpClientModule } from '@angular/common/http';  // Importação do HttpClientModule
 
 // project import
 import { AppComponent } from './app.component';
@@ -23,6 +24,7 @@ import { NavItemComponent } from './theme/layout/admin/navigation/nav-content/na
 import { NavSearchComponent } from './theme/layout/admin/nav-bar/nav-left/nav-search/nav-search.component';
 import { NavigationItem } from './theme/layout/admin/navigation/navigation';
 import { ToggleFullScreenDirective } from './theme/shared/components/full-screen/toggle-full-screen';
+import { ToastrModule } from 'ngx-toastr'; // Módulo Toastr
 
 @NgModule({
   declarations: [
@@ -42,7 +44,16 @@ import { ToggleFullScreenDirective } from './theme/shared/components/full-screen
     NavSearchComponent,
     ToggleFullScreenDirective
   ],
-  imports: [BrowserModule, AppRoutingModule, FormsModule, ReactiveFormsModule, SharedModule, BrowserAnimationsModule],
+  imports: [
+    BrowserModule,
+    ToastrModule.forRoot(),
+    AppRoutingModule,
+    FormsModule,
+    ReactiveFormsModule,
+    SharedModule,
+    BrowserAnimationsModule,
+    HttpClientModule  // Adicionado o HttpClientModule aqui
+  ],
   providers: [NavigationItem],
   bootstrap: [AppComponent]
 })

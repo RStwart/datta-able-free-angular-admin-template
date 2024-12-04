@@ -1,10 +1,11 @@
 // angular import
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, Output , EventEmitter } from '@angular/core';
 import { animate, AUTO_STYLE, state, style, transition, trigger } from '@angular/animations';
 
 // bootstrap import
 import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 import { CommonModule } from '@angular/common';
+
 
 @Component({
   selector: 'app-card',
@@ -49,14 +50,19 @@ import { CommonModule } from '@angular/common';
   ]
 })
 export class CardComponent implements OnInit {
+  
   // public props
   @Input() cardTitle: string;
+  @Input() buttonTitle: string;
   @Input() cardClass: string;
   @Input() blockClass: string;
   @Input() headerClass: string;
   @Input() options: boolean;
+  @Input() buttonh: boolean;
   @Input() hidHeader: boolean;
   @Input() customHeader: boolean;
+  @Input() buttonAction: () => void; // Aqui você recebe a função como entrada
+
 
   animation: string;
   fullIcon: string;
@@ -70,8 +76,10 @@ export class CardComponent implements OnInit {
   constructor() {
     this.customHeader = false;
     this.options = true;
+    this.buttonh = false;
     this.hidHeader = false;
     this.cardTitle = 'Card Title';
+    this.buttonTitle = 'Button Title';
     this.fullIcon = 'icon-maximize';
     this.isAnimating = false;
     this.collapsedCard = 'expanded';
@@ -87,6 +95,12 @@ export class CardComponent implements OnInit {
     }
   }
 
+  onClick(): void {
+    if (this.buttonAction) {
+      this.buttonAction();  // Executa a função recebida como entrada
+    }
+  }
+  
   // public method
   fullCardToggle(element: HTMLElement, animation: string, status: boolean) {
     animation = this.cardClass === 'full-card' ? 'zoomOut' : 'zoomIn';

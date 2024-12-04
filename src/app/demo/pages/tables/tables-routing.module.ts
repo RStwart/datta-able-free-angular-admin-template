@@ -6,10 +6,15 @@ const routes: Routes = [
     path: '',
     children: [
       {
-        path: 'bootstrap',
-        loadComponent: () => import('./tbl-bootstrap/tbl-bootstrap.component')
+        path: 'produtos',
+        loadComponent: () => import('./tbl-produtos/tbl-produtos.component').then(m => m.TblProdutosComponent)
+      },
+      {
+        path: 'funcionarios',
+        loadComponent: () => import('./tbl-funcionarios/tbl-funcionarios.component').then(m => m.TblFuncionariosComponent)
       }
-    ]
+    ],
+    
   }
 ];
 
@@ -18,3 +23,5 @@ const routes: Routes = [
   exports: [RouterModule]
 })
 export class TablesRoutingModule {}
+
+

@@ -4,6 +4,13 @@
       @if (!customHeader) {
         <h5>{{ cardTitle }}</h5>
       }
+
+      @if (this.buttonh) {
+        <div class="card-header-right">
+          <button  (click)="onClick()" class="btn btn-primary">{{buttonTitle}}</button>
+        </div>
+      }
+
       @if (this.options && !customHeader) {
         <div class="card-header-right">
           <div class="btn-group card-option dropdown" ngbDropdown>

@@ -1,7 +1,7 @@
 {
-  "name": "datta-able-free-angular-admin-template",
-  "version": "5.1.0",
-  "author": "CodedThemes",
+  "name": "ATLAS",
+  "version": "1.0.0",
+  "author": "Ramirez Stwart",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
@@ -28,6 +28,7 @@
     "bootstrap": "^5.3.3",
     "ng-apexcharts": "^1.11.0",
     "ngx-scrollbar": "^15.0.1",
+    "ngx-toastr": "^19.0.0",
     "rxjs": "~7.8.1",
     "screenfull": "^6.0.2",
     "tslib": "^2.6.3",

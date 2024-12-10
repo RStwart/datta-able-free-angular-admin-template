@@ -4,11 +4,13 @@ import { FormsModule } from '@angular/forms';
 import { TablesRoutingModule } from './tables-routing.module';
 import { TblProdutosComponent } from './tbl-produtos/tbl-produtos.component';
 import { CardComponent } from 'src/app/theme/shared/components/card/card.component';  // Importar o CardComponent diretamente
+import { TblFuncionariosComponent } from './tbl-funcionarios/tbl-funcionarios.component';
 
 
 @NgModule({
   declarations: [
     TblProdutosComponent,  // Declare o componente TblProdutosComponent
+    TblFuncionariosComponent // Declare o componente TblFuncionariosComponent
   ],
   imports: [
     CommonModule,           // Necessário para usar pipes como currency

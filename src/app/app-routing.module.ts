@@ -30,6 +30,10 @@ const routes: Routes = [
         loadChildren: () => import('./demo/pages/tables/tables.module').then((m) => m.TablesModule)
       },
       {
+        path: 'vendas',
+        loadChildren: () => import('./demo/pages/vendas/vendas.module').then((m) => m.VendasModule)
+      },
+      {
         path: 'apexchart',
         loadComponent: () => import('./demo/chart/apex-chart/apex-chart.component')
       },

@@ -138,6 +138,22 @@ const NavigationItems = [
       }
     ]
   },
+  {
+    id: 'pdv',
+    title: 'pdv',
+    type: 'group',
+    icon: 'icon-group',
+    children: [
+      {
+        id: 'pdv',
+        title: 'pdv',
+        type: 'item',
+        url: '/vendas/pdv',
+        classes: 'nav-item',
+        icon: 'feather icon-server'
+      }
+    ]
+  },
   // {
   //   id: 'chart-maps',
   //   title: 'Chart',
@@ -184,14 +200,14 @@ const NavigationItems = [
   //         }
   //       ]
   //     },
-  //     {
-  //       id: 'sample-page',
-  //       title: 'Sample Page',
-  //       type: 'item',
-  //       url: '/sample-page',
-  //       classes: 'nav-item',
-  //       icon: 'feather icon-sidebar'
-  //     },
+      // {
+      //   id: 'sample-page',
+      //   title: 'Sample Page',
+      //   type: 'item',
+      //   url: '/sample-page',
+      //   classes: 'nav-item',
+      //   icon: 'feather icon-sidebar'
+      // },
   //     {
   //       id: 'disabled-menu',
   //       title: 'Disabled Menu',

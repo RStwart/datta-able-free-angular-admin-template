@@ -172,6 +172,40 @@ app.put('/api/funcionarios/:id', (req, res) => {
   });
 });
 
+
+// Rota GET para obter todas as vendas
+app.get('/api/vendas', (req, res) => {
+  db.query('SELECT * FROM vendas', (err, results) => {
+    if (err) {
+      console.error('Erro ao consultar as vendas:', err);
+      res.status(500).json({ error: 'Erro ao obter vendas' });
+    } else {
+      console.log('Vendas encontradas:', results);
+      res.json(results);
+    }
+  });
+});
+
+// Rota POST para criar uma nova venda
+app.post('/api/vendas', (req, res) => {
+  const { valor, metodo_pagamento, horario, dia, funcionario, status } = req.body;
+  const query = `
+    INSERT INTO vendas (valor, metodo_pagamento, horario, dia, funcionario, status)
+    VALUES (?, ?, ?, ?, ?, ?)
+  `;
+  const values = [valor, metodo_pagamento, horario, dia, funcionario, status || 'pendente'];
+
+  db.query(query, values, (err, result) => {
+    if (err) {
+      console.error('Erro ao adicionar venda:', err);
+      res.status(500).json({ error: 'Erro ao adicionar venda' });
+    } else {
+      console.log('Venda adicionada com sucesso:', result);
+      res.status(201).json({ message: 'Venda adicionada com sucesso', id: result.insertId });
+    }
+  });
+});
+
 // Iniciar o servidor
 app.listen(port, () => {
   console.log(`Servidor rodando em http://localhost:${port}`);

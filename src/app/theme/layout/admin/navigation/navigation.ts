@@ -150,7 +150,7 @@ const NavigationItems = [
         type: 'item',
         url: '/vendas/pdv',
         classes: 'nav-item',
-        icon: 'feather icon-server'
+        icon: 'feather icon-power'
       }
     ]
   },

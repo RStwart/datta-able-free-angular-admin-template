@@ -38,6 +38,23 @@ const NavigationItems = [
       }
     ]
   },
+
+  {
+    id: 'navigation',
+    title: 'Navigation',
+    type: 'group',
+    icon: 'icon-navigation',
+    children: [
+      {
+        id: 'dashboard',
+        title: 'LOJA',
+        type: 'item',
+        url: '/dashboard',
+        icon: 'feather icon-home',
+        classes: 'nav-item'
+      }
+    ]
+  },
   // {
   //   id: 'ui-element',
   //   title: 'UI ELEMENT',

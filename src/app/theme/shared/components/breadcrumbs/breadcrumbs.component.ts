@@ -96,6 +96,6 @@ export class BreadcrumbsComponent {
       }
     });
     this.navigationList = result;
-    this.titleService.setTitle(title + ' | Datta Able Angular Template');
+    this.titleService.setTitle('ATLAS DASHBOARD');
   }
 }

@@ -8,38 +8,36 @@ import { ToastrService } from 'ngx-toastr';
   templateUrl: './tbl-produtos.component.html',
   styleUrls: ['./tbl-produtos.component.scss'],
 })
-
 export class TblProdutosComponent implements OnInit {
   produtos: Produto[] = [];
   erro: string | null = null;
 
-  // Propriedades para controle do formulário de adicionar produto
   novoProduto: Produto = {
     id_produto: 0,
     nome: '',
     descricao: '',
     preco: 0,
     quantidade_estoque: 0,
+    imagem: null,
+    imagemUrl: '',  // Propriedade para URL da imagem
   };
 
   mostrarFormulario = false;
 
-  currentPage: number = 1; // Página atual
-  itemsPerPage: number = 5; // Itens por página
-  totalPages: number = 0; // Total de páginas
-  produtosPaginados: Produto[] = []; // Lista de itens da página atual
-  pages: number[] = []; // Array com os números de páginas
+  currentPage: number = 1;
+  itemsPerPage: number = 5;
+  totalPages: number = 0;
+  produtosPaginados: Produto[] = [];
+  pages: number[] = [];
 
-  // Produto em edição
   produtoEmEdicao: Produto | null = null;
 
   constructor(private ProdutoService: ProdutoService, private toastr: ToastrService) {}
 
   ngOnInit(): void {
-    this.carregarProdutos(); // Carregar produtos ao iniciar o componente
+    this.carregarProdutos();
   }
 
-  // Alternar exibição do formulário de adicionar
   toggleFormulario(): void {
     this.mostrarFormulario = !this.mostrarFormulario;
     if (!this.mostrarFormulario) {
@@ -47,7 +45,6 @@ export class TblProdutosComponent implements OnInit {
     }
   }
 
-  // Resetar valores do novo produto
   resetarNovoProduto(): void {
     this.novoProduto = {
       id_produto: 0,
@@ -55,15 +52,22 @@ export class TblProdutosComponent implements OnInit {
       descricao: '',
       preco: 0,
       quantidade_estoque: 0,
+      imagem: null,
+      imagemUrl: '',  // Resetando a URL da imagem
     };
   }
 
-  // Carregar lista de produtos (sem paginação no backend)
   carregarProdutos(): void {
     this.ProdutoService.getProdutos().subscribe(
       (response: Produto[]) => {
-        this.produtos = response; // Atribui todos os produtos
-        this.atualizarPaginacao(); // Atualiza a paginação
+        this.produtos = response;
+        this.produtos.forEach(produto => {
+          if (produto.imagem) {
+            // Supondo que a imagem seja retornada pela API
+            produto.imagemUrl = `http://localhost:5000${produto.imagem}`;  // Ajuste conforme a URL de imagem
+          }
+        });
+        this.atualizarPaginacao();
         this.toastr.success('Produtos carregados com sucesso!', 'Sucesso');
       },
       (error) => {
@@ -74,33 +78,39 @@ export class TblProdutosComponent implements OnInit {
     );
   }
 
-  // Atualizar os dados de paginação
   atualizarPaginacao(): void {
-    // Calcular o número total de páginas
     this.totalPages = Math.ceil(this.produtos.length / this.itemsPerPage);
-    // Criar um array com os números das páginas
     this.pages = Array.from({ length: this.totalPages }, (_, i) => i + 1);
-    // Pegar os produtos da página atual
     this.produtosPaginados = this.produtos.slice(
       (this.currentPage - 1) * this.itemsPerPage,
       this.currentPage * this.itemsPerPage
     );
   }
 
-  // Alterar a página
   changePage(page: number): void {
-    if (page < 1 || page > this.totalPages) return; // Garantir que a página esteja no intervalo válido
+    if (page < 1 || page > this.totalPages) return;
     this.currentPage = page;
-    this.atualizarPaginacao(); // Atualizar os produtos para a página escolhida
+    this.atualizarPaginacao();
   }
 
-  // Adicionar novo produto
   adicionarProduto(): void {
-    this.ProdutoService.addProduto(this.novoProduto).subscribe(
-      () => {
-        this.carregarProdutos(); // Recarregar produtos após adição
+    const formData: FormData = new FormData();
+    formData.append('nome', this.novoProduto.nome);
+    formData.append('descricao', this.novoProduto.descricao);
+    formData.append('preco', this.novoProduto.preco.toString());
+    formData.append('quantidade_estoque', this.novoProduto.quantidade_estoque.toString());
+
+    if (this.novoProduto.imagem) {
+      formData.append('imagem', this.novoProduto.imagem, this.novoProduto.imagem.name);
+    }
+
+    this.ProdutoService.addProduto(formData).subscribe(
+      (response) => {
+        // Supondo que a resposta do backend tenha a URL da imagem
+        response.imagemUrl = `http://localhost:5000/uploads/${response.imagem}`;  // Ajuste conforme a URL de imagem
+        this.produtos.push(response);
         this.toastr.success('Produto adicionado com sucesso!', 'Sucesso');
-        this.toggleFormulario(); // Fechar o formulário
+        this.toggleFormulario();
       },
       (error) => {
         this.erro = 'Erro ao adicionar produto';
@@ -110,13 +120,12 @@ export class TblProdutosComponent implements OnInit {
     );
   }
 
-  // Deletar produto
   deletarProduto(id: number): void {
     if (confirm('Tem certeza que deseja excluir este produto?')) {
       this.ProdutoService.deleteProduto(id.toString()).subscribe(
         () => {
           this.produtos = this.produtos.filter((produto) => produto.id_produto !== id);
-          this.atualizarPaginacao(); // Recalcular a paginação após exclusão
+          this.atualizarPaginacao();
           this.toastr.success('Produto deletado com sucesso!', 'Sucesso');
         },
         (error) => {
@@ -127,18 +136,16 @@ export class TblProdutosComponent implements OnInit {
     }
   }
 
-  // Iniciar edição do produto
   editarProduto(produto: Produto): void {
-    this.produtoEmEdicao = { ...produto }; // Cria uma cópia do produto a ser editado
+    this.produtoEmEdicao = { ...produto };
   }
 
-  // Salvar alterações no produto
   salvarEdicao(): void {
     if (this.produtoEmEdicao) {
       this.ProdutoService.updateProduto(this.produtoEmEdicao.id_produto.toString(), this.produtoEmEdicao).subscribe(
         () => {
-          this.carregarProdutos(); // Recarregar produtos após edição
-          this.produtoEmEdicao = null; // Finaliza o modo de edição
+          this.carregarProdutos();
+          this.produtoEmEdicao = null;
           this.toastr.success('Alteração realizada com sucesso!', 'Sucesso');
         },
         (error) => {
@@ -149,8 +156,14 @@ export class TblProdutosComponent implements OnInit {
     }
   }
 
-  // Cancelar edição
   cancelarEdicao(): void {
-    this.produtoEmEdicao = null; // Reseta o modo de edição
+    this.produtoEmEdicao = null;
+  }
+
+  onFileSelected(event: any): void {
+    const file: File = event.target.files[0];
+    if (file) {
+      this.novoProduto.imagem = file;
+    }
   }
 }

@@ -6,7 +6,7 @@ import { Observable } from 'rxjs';
   providedIn: 'root',
 })
 export class ProdutoService {
-  private apiUrl = 'http://localhost:5000/api'; // Defina a URL base da sua API
+  private apiUrl = 'http://localhost:5000/api'; // URL base da API
 
   constructor(private http: HttpClient) {}
 
@@ -20,8 +20,8 @@ export class ProdutoService {
     return this.http.get(`${this.apiUrl}/produtos/${id}`);
   }
 
-  // Método para adicionar um novo produto
-  addProduto(produto: any): Observable<any> {
+  // Método para adicionar um novo produto (suporta imagem)
+  addProduto(produto: FormData): Observable<any> {
     return this.http.post(`${this.apiUrl}/produtos`, produto);
   }
 
@@ -35,13 +35,15 @@ export class ProdutoService {
     return this.http.delete(`${this.apiUrl}/produtos/${id}`);
   }
 
-  // Métodos similares podem ser criados para outros recursos, como usuários
+  // Método para fazer upload da imagem
+  uploadImagem(imagem: File): Observable<any> {
+    const formData = new FormData();
+    formData.append('imagem', imagem, imagem.name);
+    return this.http.post(`${this.apiUrl}/upload`, formData); // Endpoint de upload
+  }
+
+  // Método para obter os usuários (opcional)
   getUsuarios(): Observable<any> {
     return this.http.get(`${this.apiUrl}/usuarios`);
   }
-  
-  // E outros métodos conforme necessário...
 }
-
-
-

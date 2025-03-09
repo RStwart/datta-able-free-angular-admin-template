@@ -131,6 +131,98 @@ app.get('/api/funcionarios', (req, res) => {
 });
 
 
+// CRUD da Mesa
+
+// Rota GET para obter todas as mesas
+app.get('/api/mesas', (req, res) => {
+  db.query('SELECT * FROM mesa', (err, results) => {
+    if (err) {
+      console.error('Erro ao consultar as mesas:', err);
+      res.status(500).json({ error: 'Erro ao obter mesas', details: err });
+    } else {
+      console.log('Mesas encontradas:', results);
+      res.json(results);
+    }
+  });
+});
+
+// Rota GET para obter uma mesa pelo ID
+app.get('/api/mesas/:id', (req, res) => {
+  const { id } = req.params;
+  db.query('SELECT * FROM mesa WHERE id_mesa = ?', [id], (err, results) => {
+    if (err) {
+      console.error('Erro ao consultar a mesa:', err);
+      res.status(500).json({ error: 'Erro ao obter mesa', details: err });
+    } else if (results.length === 0) {
+      res.status(404).json({ error: 'Mesa não encontrada' });
+    } else {
+      res.json(results[0]);
+    }
+  });
+});
+
+// Rota POST para adicionar uma nova mesa
+app.post('/api/mesas', (req, res) => {
+  const { numero, capacidade, status, pedidos, garcom, horaAbertura, totalConsumo } = req.body;
+  const query = 'INSERT INTO mesa (numero, capacidade, status, pedidos, garcom, horaAbertura, totalConsumo) VALUES (?, ?, ?, ?, ?, ?, ?)';
+  const values = [numero, capacidade, status, JSON.stringify(pedidos), garcom, horaAbertura, totalConsumo];
+
+
+  console.log(status, 'status');
+
+  db.query(query, values, (err, result) => {
+    if (err) {
+      console.error('Erro ao adicionar mesa:', err);
+      res.status(500).json({ error: 'Erro ao adicionar mesa' });
+    } else {
+      console.log('Mesa adicionada com sucesso:', result);
+      res.status(201).json({ message: 'Mesa adicionada com sucesso', id: result.insertId });
+    }
+  });
+});
+
+// Rota PUT para atualizar uma mesa pelo ID
+app.put('/api/mesas/:id', (req, res) => {
+  const { id } = req.params;
+  const { numero, capacidade, status, pedidos, garcom, horaAbertura, totalConsumo } = req.body;
+  const query = `
+    UPDATE mesa
+    SET numero = ?, capacidade = ?, status = ?, pedidos = ?, garcom = ?, horaAbertura = ?, totalConsumo = ?
+    WHERE id_mesa = ?
+  `;
+  const values = [numero, capacidade, status, JSON.stringify(pedidos), garcom, horaAbertura, totalConsumo, id];
+
+  db.query(query, values, (err, result) => {
+    if (err) {
+      console.error('Erro ao atualizar mesa:', err);
+      res.status(500).json({ error: 'Erro ao atualizar mesa' });
+    } else if (result.affectedRows === 0) {
+      res.status(404).json({ error: 'Mesa não encontrada' });
+    } else {
+      console.log('Mesa atualizada com sucesso:', id);
+      res.json({ message: 'Mesa atualizada com sucesso' });
+    }
+  });
+});
+
+// Rota DELETE para deletar uma mesa pelo ID
+app.delete('/api/mesas/:id', (req, res) => {
+  const { id } = req.params;
+  db.query('DELETE FROM mesa WHERE id_mesa = ?', [id], (err, result) => {
+    if (err) {
+      console.error('Erro ao deletar mesa:', err);
+      res.status(500).json({ error: 'Erro ao deletar mesa' });
+    } else if (result.affectedRows === 0) {
+      res.status(404).json({ error: 'Mesa não encontrada' });
+    } else {
+      console.log('Mesa deletada com sucesso:', id);
+      res.json({ message: 'Mesa deletada com sucesso' });
+    }
+  });
+});
+
+
+
 // // Iniciar o servidor
 // app.listen(port, () => {
 //   console.log(`Servidor rodando em http://localhost:${port}`);

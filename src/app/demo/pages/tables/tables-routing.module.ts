@@ -12,6 +12,10 @@ const routes: Routes = [
       {
         path: 'funcionarios',
         loadComponent: () => import('./tbl-funcionarios/tbl-funcionarios.component').then(m => m.TblFuncionariosComponent)
+      },
+      {
+        path: 'mesa',
+        loadComponent: () => import('./tbl-mesa/tbl-mesa.component').then(m => m.TblMesasComponent)
       }
     ],
     
@@ -25,3 +29,4 @@ const routes: Routes = [
 export class TablesRoutingModule {}
 
 
+ 

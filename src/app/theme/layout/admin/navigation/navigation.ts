@@ -152,6 +152,14 @@ const NavigationItems = [
         url: '/tables/funcionarios',
         classes: 'nav-item',
         icon: 'feather icon-server'
+      },
+      {
+        id: 'Mesa',
+        title: 'Mesas',
+        type: 'item',
+        url: '/tables/mesa',
+        classes: 'nav-item',
+        icon: 'feather icon-server'
       }
     ]
   },
@@ -217,33 +225,33 @@ const NavigationItems = [
           }
         ]
       },
-      {
-        id: 'sample-page',
-        title: 'Sample Page',
-        type: 'item',
-        url: '/sample-page',
-        classes: 'nav-item',
-        icon: 'feather icon-sidebar'
-      },
-      {
-        id: 'disabled-menu',
-        title: 'Disabled Menu',
-        type: 'item',
-        url: 'javascript:',
-        classes: 'nav-item disabled',
-        icon: 'feather icon-power',
-        external: true
-      },
-      {
-        id: 'buy_now',
-        title: 'Buy Now',
-        type: 'item',
-        icon: 'feather icon-book',
-        classes: 'nav-item',
-        url: 'https://codedthemes.com/item/datta-able-angular/',
-        target: true,
-        external: true
-      }
+      // {
+      //   id: 'sample-page',
+      //   title: 'Sample Page',
+      //   type: 'item',
+      //   url: '/sample-page',
+      //   classes: 'nav-item',
+      //   icon: 'feather icon-sidebar'
+      // },
+      // {
+      //   id: 'disabled-menu',
+      //   title: 'Disabled Menu',
+      //   type: 'item',
+      //   url: 'javascript:',
+      //   classes: 'nav-item disabled',
+      //   icon: 'feather icon-power',
+      //   external: true
+      // },
+      // {
+      //   id: 'buy_now',
+      //   title: 'Buy Now',
+      //   type: 'item',
+      //   icon: 'feather icon-book',
+      //   classes: 'nav-item',
+      //   url: 'https://codedthemes.com/item/datta-able-angular/',
+      //   target: true,
+      //   external: true
+      // }
     ]
   }
 ];

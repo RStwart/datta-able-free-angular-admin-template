@@ -47,13 +47,23 @@ export class TblMesasComponent implements OnInit {
     this.carregarProdutos();
   }
 
+  calcularTotalPedido(): number {
+    if (!this.mesaSelecionada?.pedidos || !Array.isArray(this.mesaSelecionada.pedidos)) {
+      return 0; // Se não houver pedidos ou se não for um array, retorna 0
+    }
+  
+    let total = 0;
+    this.mesaSelecionada.pedidos.forEach(pedido => {
+      total += pedido.preco * pedido.quantidade;
+    });
+  
+    return total;
+  }
+
   // Toggle para exibir/ocultar o formulário de adicionar mesa
   toggleFormulario(): void {
-    console.log('Toggle formulário acionado');
-
     this.mostrarFormulario = !this.mostrarFormulario;
     if (!this.mostrarFormulario) {
-      console.log('Limpou formulario');
       this.limparFormulario(); // Limpa o formulário quando for fechado
     }
   }
@@ -74,6 +84,7 @@ export class TblMesasComponent implements OnInit {
     this.produtoService.getProdutos().subscribe(
       (produtos: Produto[]) => {
         this.produtos = produtos;
+        console.log('Produtos carregados:', this.produtos);
       },
       (error) => {
         console.error('Erro ao carregar produtos', error);
@@ -84,11 +95,16 @@ export class TblMesasComponent implements OnInit {
 
   abrirModalAdicionarPedido(mesa: Mesa): void {
     this.mesaSelecionada = { ...mesa }; // Faz uma cópia da mesa
+    
+    // Garantir que pedidos seja sempre um array
     if (!this.mesaSelecionada.pedidos) {
-      this.mesaSelecionada.pedidos = []; // Garante que pedidos seja um array
+      this.mesaSelecionada.pedidos = [];
     }
+    
+    console.log('Mesa Selecionada:', this.mesaSelecionada); // Verifique a mesa selecionada
     this.mostrarModal = true;
   }
+  
 
   fecharModal(): void {
     this.mostrarModal = false;
@@ -96,6 +112,7 @@ export class TblMesasComponent implements OnInit {
     this.filtroProduto = ''; // Reseta a pesquisa ao fechar o modal
   }
 
+  // Método para filtrar os produtos com base no texto do filtro
   get produtosFiltrados(): Produto[] {
     if (!this.filtroProduto.trim()) {
       return this.produtos;
@@ -117,12 +134,32 @@ export class TblMesasComponent implements OnInit {
         const novoPedido = {
           id_produto: produto.id_produto,
           nome: produto.nome,
-          preco: produto.preco
+          preco: produto.preco,
+          quantidade: 1 // Inicializa a quantidade como 1
         };
         this.mesaSelecionada.pedidos.push(novoPedido);
         this.toastr.success('Produto adicionado ao pedido!', 'Sucesso');
       } else {
         this.toastr.warning('Produto já foi adicionado ao pedido!', 'Aviso');
+      }
+    }
+  }
+
+  // Funções para manipulação da quantidade
+  incrementarQuantidade(idProduto: number): void {
+    if (this.mesaSelecionada) {
+      const item = this.mesaSelecionada.pedidos.find(pedido => pedido.id_produto === idProduto);
+      if (item) {
+        item.quantidade += 1;  // Incrementa a quantidade
+      }
+    }
+  }
+
+  decrementarQuantidade(idProduto: number): void {
+    if (this.mesaSelecionada) {
+      const item = this.mesaSelecionada.pedidos.find(pedido => pedido.id_produto === idProduto);
+      if (item && item.quantidade > 1) {
+        item.quantidade -= 1;  // Decrementa a quantidade, mas não permite ser menor que 1
       }
     }
   }
@@ -171,7 +208,7 @@ export class TblMesasComponent implements OnInit {
     this.atualizarPaginacao();
   }
 
-  deletarMesa(id: number): void {
+  excluirMesa(id: number): void {
     if (confirm('Tem certeza que deseja excluir esta mesa?')) {
       this.mesaService.deleteMesa(id.toString()).subscribe(
         () => {

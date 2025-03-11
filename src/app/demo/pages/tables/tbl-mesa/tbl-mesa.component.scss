@@ -132,3 +132,47 @@ input[type="number"] {
   font-size: 14px;
   padding: 5px 10px;
 }
+
+
+
+/* Estilo do modal */
+.modal {
+  background: rgba(0, 0, 0, 0.5); /* Fundo escuro para o modal */
+}
+
+.modal-content {
+  border-radius: 10px;
+}
+
+.modal-body {
+  max-height: 800px; /* Limita a altura do conteúdo */
+  overflow-y: auto;  /* Adiciona rolagem caso tenha muitos produtos */
+}
+
+.modal-header .close {
+  font-size: 1.5rem;
+  cursor: pointer;
+}
+
+.modal-backdrop {
+  background-color: rgba(0, 0, 0, 0.5); /* Fundo escuro do modal */
+}
+
+/* Tamanho maior para o modal */
+.modal-dialog.modal-lg { 
+  max-width: 90%; /* Ajustei a largura para ocupar 90% da tela */
+  width: 90%;
+}
+
+.modal-header {
+  background-color: #28a745;
+  color: white;
+}
+
+.modal-footer {
+  text-align: right;
+}
+
+.modal-body {
+  padding: 15px;
+}

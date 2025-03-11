@@ -222,6 +222,100 @@ app.delete('/api/mesas/:id', (req, res) => {
 });
 
 
+// Rota POST para adicionar um novo pedido
+app.post('/api/pedidos', (req, res) => {
+  const { id_mesa, status, total, data, produtos } = req.body;
+
+  // Insira o pedido na tabela 'pedidos' (ajuste o nome da tabela conforme necessário)
+  const query = `
+    INSERT INTO pedidos (id_mesa, status, total, data, produtos)
+    VALUES (?, ?, ?, ?, ?)
+  `;
+  const values = [id_mesa, status, total, data, JSON.stringify(produtos)];
+
+  db.query(query, values, (err, result) => {
+    if (err) {
+      console.error('Erro ao adicionar pedido:', err);
+      res.status(500).json({ error: 'Erro ao adicionar pedido' });
+    } else {
+      console.log('Pedido adicionado com sucesso:', result);
+      res.status(201).json({ message: 'Pedido adicionado com sucesso', id: result.insertId });
+    }
+  });
+});
+
+
+app.get('/api/pedidos', (req, res) => {
+  db.query('SELECT * FROM pedidos', (err, results) => {
+    if (err) {
+      console.error('Erro ao consultar os pedidos:', err);
+      res.status(500).json({ error: 'Erro ao obter pedidos', details: err });
+    } else {
+      console.log('Pedidos encontrados:', results);
+      res.json(results);
+    }
+  });
+});
+
+
+// Rota GET para obter um pedido específico pelo ID
+app.get('/api/pedidos/:id', (req, res) => {
+  const { id } = req.params;
+  db.query('SELECT * FROM pedidos WHERE id_pedido = ?', [id], (err, results) => {
+    if (err) {
+      console.error('Erro ao consultar o pedido:', err);
+      res.status(500).json({ error: 'Erro ao obter pedido', details: err });
+    } else if (results.length === 0) {
+      res.status(404).json({ error: 'Pedido não encontrado' });
+    } else {
+      res.json(results[0]);
+    }
+  });
+});
+
+
+// Rota PUT para atualizar um pedido
+app.put('/api/pedidos/:id', (req, res) => {
+  const { id } = req.params;
+  const { id_mesa, status, total, data, produtos } = req.body;
+
+  const query = `
+    UPDATE pedidos
+    SET id_mesa = ?, status = ?, total = ?, data = ?, produtos = ?
+    WHERE id_pedido = ?
+  `;
+  const values = [id_mesa, status, total, data, JSON.stringify(produtos), id];
+
+  db.query(query, values, (err, result) => {
+    if (err) {
+      console.error('Erro ao atualizar pedido:', err);
+      res.status(500).json({ error: 'Erro ao atualizar pedido' });
+    } else if (result.affectedRows === 0) {
+      res.status(404).json({ error: 'Pedido não encontrado' });
+    } else {
+      console.log('Pedido atualizado com sucesso:', id);
+      res.json({ message: 'Pedido atualizado com sucesso' });
+    }
+  });
+});
+
+
+// Rota DELETE para excluir um pedido
+app.delete('/api/pedidos/:id', (req, res) => {
+  const { id } = req.params;
+  db.query('DELETE FROM pedidos WHERE id_pedido = ?', [id], (err, result) => {
+    if (err) {
+      console.error('Erro ao deletar pedido:', err);
+      res.status(500).json({ error: 'Erro ao deletar pedido' });
+    } else if (result.affectedRows === 0) {
+      res.status(404).json({ error: 'Pedido não encontrado' });
+    } else {
+      console.log('Pedido deletado com sucesso:', id);
+      res.json({ message: 'Pedido deletado com sucesso' });
+    }
+  });
+});
+
 
 // // Iniciar o servidor
 // app.listen(port, () => {

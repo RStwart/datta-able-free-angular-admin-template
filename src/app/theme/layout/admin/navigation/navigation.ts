@@ -160,6 +160,14 @@ const NavigationItems = [
         url: '/tables/mesa',
         classes: 'nav-item',
         icon: 'feather icon-server'
+      },
+      {
+        id: 'Pedido',
+        title: 'Pedidos',
+        type: 'item',
+        url: '/tables/pedidos',
+        classes: 'nav-item',
+        icon: 'feather icon-server'
       }
     ]
   },

@@ -15,6 +15,7 @@
               <h5 class="card-title fw-bold">Mesa: {{ pedido.id_mesa }}</h5>
               <p class="card-text"><strong>Pedido:</strong></p>
               <ul class="list-unstyled">
+                <!-- Agora você pode acessar 'produtos' diretamente -->
                 <li *ngFor="let produto of pedido.produtos">
                   {{ produto.nome }} - {{ produto.quantidade }}x
                 </li>

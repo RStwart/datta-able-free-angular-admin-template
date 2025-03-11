@@ -224,14 +224,14 @@ app.delete('/api/mesas/:id', (req, res) => {
 
 // Rota POST para adicionar um novo pedido
 app.post('/api/pedidos', (req, res) => {
-  const { id_mesa, status, total, data, produtos } = req.body;
+  const { id_mesa, status, total, data, item } = req.body;
 
   // Insira o pedido na tabela 'pedidos' (ajuste o nome da tabela conforme necessário)
   const query = `
-    INSERT INTO pedidos (id_mesa, status, total, data, produtos)
+    INSERT INTO pedidos (id_mesa, status, total, data, item)
     VALUES (?, ?, ?, ?, ?)
   `;
-  const values = [id_mesa, status, total, data, JSON.stringify(produtos)];
+  const values = [id_mesa, status, total, data, JSON.stringify(item)];
 
   db.query(query, values, (err, result) => {
     if (err) {

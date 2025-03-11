@@ -3,6 +3,10 @@ import { PedidoService } from 'src/app/services/pedidos.service';
 import { Pedido } from 'src/app/interfaces/pedidos.interface';
 import { ToastrService } from 'ngx-toastr';
 
+interface PedidoComProdutos extends Pedido {
+  produtos: any[]; // Array de produtos parseados
+}
+
 @Component({
   selector: 'app-tbl-pedidos',
   templateUrl: './tbl-pedidos.component.html',
@@ -10,12 +14,13 @@ import { ToastrService } from 'ngx-toastr';
 })
 export class TblPedidosComponent implements OnInit {
   pedidos: Pedido[] = [];
+  pedidosComProdutos: PedidoComProdutos[] = [];  // Agora com o tipo correto
   erro: string | null = null;
   
   currentPage: number = 1;
   itemsPerPage: number = 5;
   totalPages: number = 0;
-  pedidosPaginados: Pedido[] = [];
+  pedidosPaginados: PedidoComProdutos[] = [];  // Alterado para o tipo correto
   pages: number[] = [];
 
   constructor(private pedidoService: PedidoService, private toastr: ToastrService) {}
@@ -28,6 +33,16 @@ export class TblPedidosComponent implements OnInit {
     this.pedidoService.getPedidos().subscribe(
       (response: Pedido[]) => {
         this.pedidos = response;
+  
+        // Debugando o conteúdo de 'pedido.item'
+        this.pedidosComProdutos = this.pedidos.map(pedido => {
+          console.log('Pedido item:', pedido.item);  // Adicione esse log
+          return {
+            ...pedido,
+            produtos: pedido.item ? JSON.parse(pedido.item) : []
+          };
+        });
+  
         this.atualizarPaginacao();
         this.toastr.success('Pedidos carregados com sucesso!', 'Sucesso');
       },
@@ -38,11 +53,12 @@ export class TblPedidosComponent implements OnInit {
       }
     );
   }
+  
 
   atualizarPaginacao(): void {
-    this.totalPages = Math.ceil(this.pedidos.length / this.itemsPerPage);
+    this.totalPages = Math.ceil(this.pedidosComProdutos.length / this.itemsPerPage); // Alterado para usar pedidosComProdutos
     this.pages = Array.from({ length: this.totalPages }, (_, i) => i + 1);
-    this.pedidosPaginados = this.pedidos.slice(
+    this.pedidosPaginados = this.pedidosComProdutos.slice(
       (this.currentPage - 1) * this.itemsPerPage,
       this.currentPage * this.itemsPerPage
     );

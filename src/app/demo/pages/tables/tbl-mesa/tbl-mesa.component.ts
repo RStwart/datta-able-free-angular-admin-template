@@ -4,6 +4,9 @@ import { ProdutoService } from 'src/app/services/produto.service';
 import { Mesa } from 'src/app/interfaces/mesa.interface';
 import { Produto } from 'src/app/interfaces/produto.interface';
 import { ToastrService } from 'ngx-toastr';
+import { Pedido } from 'src/app/interfaces/pedidos.interface';  // Importe a interface Pedido
+import { PedidoService } from 'src/app/services/pedidos.service';  // Adicione a importação
+
 
 @Component({
   selector: 'app-tbl-mesas',
@@ -39,6 +42,7 @@ export class TblMesasComponent implements OnInit {
   constructor(
     private mesaService: MesaService,
     private produtoService: ProdutoService,
+    private pedidoService: PedidoService, // Injetando o PedidoService
     private toastr: ToastrService
   ) {}
 
@@ -104,7 +108,6 @@ export class TblMesasComponent implements OnInit {
     console.log('Mesa Selecionada:', this.mesaSelecionada); // Verifique a mesa selecionada
     this.mostrarModal = true;
   }
-  
 
   fecharModal(): void {
     this.mostrarModal = false;
@@ -173,10 +176,33 @@ export class TblMesasComponent implements OnInit {
 
   finalizarPedido(): void {
     if (this.mesaSelecionada) {
-      this.toastr.success('Pedido finalizado com sucesso!', 'Sucesso');
-      this.fecharModal();
+      // Calcular o total do pedido
+      const totalPedido = this.calcularTotalPedido();
+  
+      // Criar o objeto do pedido
+      const pedido: Pedido = {
+        id_pedido: 0,  // Este ID será gerado pelo backend
+        id_mesa: this.mesaSelecionada.id_mesa,
+        data: new Date().toISOString().slice(0, 19).replace('T', ' '),  // Formato correto para o MySQL
+        status: 'Solicitado',  // Status do pedido
+        total: totalPedido,  // O total calculado do pedido
+        item: JSON.stringify(this.mesaSelecionada.pedidos), // Caso você queira manter o item como string JSON
+      };
+  
+      // Adicionar o pedido usando o PedidoService
+      this.pedidoService.addPedido(pedido).subscribe(
+        (response) => {
+          this.toastr.success('Pedido finalizado e adicionado com sucesso!', 'Sucesso');
+          this.fecharModal();
+        },
+        (error) => {
+          console.error('Erro ao adicionar o pedido:', error);
+          this.toastr.error('Erro ao adicionar o pedido', 'Erro');
+        }
+      );
     }
   }
+  
 
   carregarMesas(): void {
     this.mesaService.getMesas().subscribe(

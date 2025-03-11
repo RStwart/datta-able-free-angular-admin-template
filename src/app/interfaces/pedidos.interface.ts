@@ -12,5 +12,5 @@ export interface Pedido {
   data: string;                // Data e hora do pedido
   status: 'Solicitado' | 'Em preparo' | 'Finalizado';  // Status do pedido (pode ser 'Solicitado', 'Em preparo' ou 'Finalizado')
   total: number;               // Total do pedido (soma dos itens)
-  produtos: Produto[];         // Array de produtos no pedido
+  item: string;                // Propriedade que armazena a string JSON com os produtos
 }

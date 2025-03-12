@@ -7,7 +7,6 @@ import { ToastrService } from 'ngx-toastr';
 import { Pedido } from 'src/app/interfaces/pedidos.interface';  // Importe a interface Pedido
 import { PedidoService } from 'src/app/services/pedidos.service';  // Adicione a importação
 
-
 @Component({
   selector: 'app-tbl-mesas',
   templateUrl: './tbl-mesa.component.html',
@@ -16,7 +15,10 @@ import { PedidoService } from 'src/app/services/pedidos.service';  // Adicione a
 export class TblMesasComponent implements OnInit {
   mesas: Mesa[] = [];
   produtos: Produto[] = [];
+  
   mostrarModal: boolean = false;
+  mostrarModalDetalhes: boolean = false;
+
   mesaSelecionada: Mesa | null = null;
   erro: string | null = null;
   filtroProduto: string = '';
@@ -38,6 +40,9 @@ export class TblMesasComponent implements OnInit {
   totalPages: number = 0;
   mesasPaginadas: Mesa[] = [];
   pages: number[] = [];
+
+  // Histórico de pedidos
+  historicoPedidos: Pedido[] = [];
 
   constructor(
     private mesaService: MesaService,
@@ -107,6 +112,7 @@ export class TblMesasComponent implements OnInit {
     
     console.log('Mesa Selecionada:', this.mesaSelecionada); // Verifique a mesa selecionada
     this.mostrarModal = true;
+    this.mostrarModalDetalhes = false; // Certifique-se de que o modal de detalhes esteja fechado
   }
 
   fecharModal(): void {
@@ -273,4 +279,85 @@ export class TblMesasComponent implements OnInit {
       this.toastr.warning('Por favor, preencha todos os campos.', 'Aviso');
     }
   }
+
+
+  carregarHistoricoPedidos(id_mesa: number): void {
+    this.pedidoService.getHistoricoPedidosPorMesa(id_mesa).subscribe(
+      (pedidos: any) => {
+        console.log('Dados brutos da API:', pedidos);
+        console.log('Tipo de dados de pedidos:', typeof pedidos);
+  
+        pedidos.forEach(pedido => {
+          if (pedido.item) {
+            console.log('Pedido item antes do parse:', pedido.item);
+  
+            // Garantir que o item seja sempre um array após o parse
+            try {
+              pedido.itens = JSON.parse(pedido.item);  // Converte a string JSON para um array
+              // Garantir que, após o parse, temos um array válido
+              if (!Array.isArray(pedido.itens)) {
+                pedido.itens = []; // Se não for um array, atribui um array vazio
+              }
+              console.log('Itens do pedido após o parse:', pedido.itens);
+            } catch (error) {
+              console.error('Erro ao fazer parse do item:', error);
+              pedido.itens = []; // Caso não seja uma string JSON válida, atribui um array vazio
+            }
+          } else {
+            pedido.itens = []; // Se o campo "item" não existe, inicializa como array vazio
+          }
+  
+          console.log('Itens do pedido após correção:', pedido.itens);
+        });
+  
+        // Agora, trata os dados para a exibição
+        if (typeof pedidos === 'string') {
+          try {
+            pedidos = JSON.parse(pedidos);  // Tenta converter se for string
+          } catch (e) {
+            console.error('Erro ao converter pedidos:', e);
+            pedidos = [];  // Se falhar, inicializa como array vazio
+          }
+        }
+  
+        if (!Array.isArray(pedidos)) {
+          pedidos = [];
+        }
+  
+        this.mesaSelecionada.pedidos = pedidos;
+        console.log('Histórico de pedidos carregado:', this.mesaSelecionada.pedidos);
+      },
+      (error) => {
+        console.error('Erro ao carregar histórico de pedidos:', error);
+        this.toastr.error('Erro ao carregar histórico de pedidos', 'Erro');
+      }
+    );
+  }
+  
+  
+
+  abrirModalDetalhes(mesa: Mesa): void {
+    this.mesaSelecionada = { ...mesa }; // Faz uma cópia da mesa
+    console.log('Detalhes da Mesa Selecionada:', this.mesaSelecionada); // Verifique a mesa selecionada
+    
+    // Garantir que pedidos seja sempre um array
+    if (!Array.isArray(this.mesaSelecionada.pedidos)) {
+      this.mesaSelecionada.pedidos = [];
+    }
+  
+    this.mostrarModalDetalhes = true;  // Mostra o modal de detalhes
+    this.mostrarModal = false; // Fecha o modal de adicionar pedido
+    
+    this.carregarHistoricoPedidos(this.mesaSelecionada.id_mesa);
+  }
+  
+
+  fecharModals() {
+    this.mostrarModalDetalhes = false;  // Garantir que o modal de detalhes seja fechado
+    this.mostrarModal = false;  // Se você também está controlando outros modais, defina como necessário
+  }
+
+
+
+
 }

@@ -22,6 +22,10 @@ export class PedidoService {
     return this.http.get<Pedido>(`${this.apiUrl}/pedidos/${id}`);
   }
 
+  getHistoricoPedidosPorMesa(mesaId: number): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/mesas/${mesaId}/historico-pedidos`);
+  }
+  
   // Método para adicionar um novo pedido
   addPedido(pedido: Pedido): Observable<Pedido> {
     return this.http.post<Pedido>(`${this.apiUrl}/pedidos`, pedido);

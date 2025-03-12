@@ -258,6 +258,34 @@ app.get('/api/pedidos', (req, res) => {
 });
 
 
+app.get('/api/mesas/:id/historico-pedidos', (req, res) => {
+  const mesaId = req.params.id;
+
+  const query = `SELECT * FROM pedidos WHERE id_mesa = ? ORDER BY data DESC`;
+
+  db.query(query, [mesaId], (err, results) => {
+    if (err) {
+      console.error('Erro ao buscar histórico de pedidos:', err);
+      return res.status(500).json({ error: 'Erro ao buscar histórico de pedidos' });
+    }
+
+    // Verificar e parsear o campo 'itens' corretamente
+    const pedidosComItens = results.map(pedido => {
+      try {
+        pedido.itens = JSON.parse(pedido.itens); // Parse o campo itens, que está em JSON
+      } catch (err) {
+        pedido.itens = []; // Caso o parse falhe, garanta que itens seja um array vazio
+      }
+      return pedido;
+    });
+
+    res.json(pedidosComItens);
+  });
+});
+
+
+
+
 // Rota GET para obter um pedido específico pelo ID
 app.get('/api/pedidos/:id', (req, res) => {
   const { id } = req.params;

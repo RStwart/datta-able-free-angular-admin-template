@@ -14,6 +14,7 @@
                 <button class="btn btn-danger btn-lg" (click)="excluirMesa(mesa.id_mesa)">Excluir</button>
                 <button class="btn btn-primary btn-lg" (click)="abrirModalAdicionarPedido(mesa)">Adicionar Pedido</button>
                 <button class="btn btn-success btn-lg" (click)="editarMesa(mesa)">Editar</button>
+                <button class="btn btn-info btn-lg" (click)="abrirModalDetalhes(mesa)">Ver Detalhes</button>
               </div>
 
             </div>
@@ -130,6 +131,60 @@
 
 <!-- Fundo escuro do modal -->
 <div class="modal-backdrop fade show" *ngIf="mostrarModal"></div>
+
+<!-- Modal de Detalhes da Mesa -->
+<div class="modal fade show d-block" *ngIf="mostrarModalDetalhes">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Detalhes da Mesa {{ mesaSelecionada?.numero }}</h5>
+      </div>
+
+      <div class="modal-body">
+        <!-- Exibição dos Pedidos -->
+        <div *ngIf="mesaSelecionada?.pedidos && mesaSelecionada.pedidos.length > 0">
+          <h6>Histórico de Pedidos</h6>
+          <div *ngFor="let pedido of mesaSelecionada.pedidos">
+            <div class="card mb-3">
+              <div class="card-body">
+                <h6><strong>Data:</strong> {{ pedido.data | date: 'dd/MM/yyyy HH:mm' }}</h6>
+                <h6><strong>Status:</strong> {{ pedido.status }}</h6>
+                <h6><strong>Total:</strong> R$ {{ pedido.total | currency: 'BRL' }}</h6>
+
+                <!-- Exibir os itens do pedido -->
+                <h6>Itens do Pedido</h6>
+                <ul class="list-group">
+                  <li *ngFor="let item of pedido.itens; let i = index" [ngClass]="{ 'list-group-item': true }">
+                    {{ item.nome }} - {{ item.preco | currency }} - Quantidade: {{ item.quantidade }}
+                  </li>
+                </ul>
+
+                <!-- Caso não tenha itens no pedido -->
+                <div *ngIf="!pedido.itens || pedido.itens.length === 0" class="text-muted">
+                  Nenhum item no pedido.
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Caso não tenha pedidos -->
+        <div *ngIf="!mesaSelecionada?.pedidos || mesaSelecionada.pedidos.length === 0" class="text-center">
+          <p class="text-muted">Nenhum pedido registrado para esta mesa.</p>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-secondary" (click)="fecharModals()">Fechar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+<!-- Fundo escuro do modal -->
+<div class="modal-backdrop fade show" *ngIf="mostrarModalDetalhes"></div>
 
 <!-- Paginação original -->
 <nav aria-label="Page navigation" class="mt-3">

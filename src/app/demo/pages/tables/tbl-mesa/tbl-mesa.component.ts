@@ -93,7 +93,7 @@ export class TblMesasComponent implements OnInit {
     this.produtoService.getProdutos().subscribe(
       (produtos: Produto[]) => {
         this.produtos = produtos;
-        console.log('Produtos carregados:', this.produtos);
+        // console.log('Produtos carregados:', this.produtos);
       },
       (error) => {
         console.error('Erro ao carregar produtos', error);
@@ -185,6 +185,14 @@ export class TblMesasComponent implements OnInit {
       // Calcular o total do pedido
       const totalPedido = this.calcularTotalPedido();
   
+      console.log('ITEM ENVIADOS', this.mesaSelecionada.pedidos);
+  
+      // Criar a string personalizada para os itens do pedido
+      const itensFormatados = this.mesaSelecionada.pedidos.map((pedido: any) => {
+        console.log('NOME DOS PEDIDOS',pedido);
+        return `${pedido.id_produto}|${pedido.nome}|${pedido.quantidade}|${pedido.preco}`;
+      }).join('; ');
+  
       // Criar o objeto do pedido
       const pedido: Pedido = {
         id_pedido: 0,  // Este ID será gerado pelo backend
@@ -192,7 +200,7 @@ export class TblMesasComponent implements OnInit {
         data: new Date().toISOString().slice(0, 19).replace('T', ' '),  // Formato correto para o MySQL
         status: 'Solicitado',  // Status do pedido
         total: totalPedido,  // O total calculado do pedido
-        item: JSON.stringify(this.mesaSelecionada.pedidos), // Caso você queira manter o item como string JSON
+        item: itensFormatados, // Enviando a string formatada
       };
   
       // Adicionar o pedido usando o PedidoService
@@ -208,6 +216,7 @@ export class TblMesasComponent implements OnInit {
       );
     }
   }
+  
   
 
   carregarMesas(): void {
@@ -280,52 +289,41 @@ export class TblMesasComponent implements OnInit {
     }
   }
 
-
   carregarHistoricoPedidos(id_mesa: number): void {
     this.pedidoService.getHistoricoPedidosPorMesa(id_mesa).subscribe(
       (pedidos: any) => {
-        console.log('Dados brutos da API:', pedidos);
-        console.log('Tipo de dados de pedidos:', typeof pedidos);
+        console.log('Pedidos carregados:', pedidos);
   
         pedidos.forEach(pedido => {
-          if (pedido.item) {
-            console.log('Pedido item antes do parse:', pedido.item);
-  
-            // Garantir que o item seja sempre um array após o parse
-            try {
-              pedido.itens = JSON.parse(pedido.item);  // Converte a string JSON para um array
-              // Garantir que, após o parse, temos um array válido
-              if (!Array.isArray(pedido.itens)) {
-                pedido.itens = []; // Se não for um array, atribui um array vazio
-              }
-              console.log('Itens do pedido após o parse:', pedido.itens);
-            } catch (error) {
-              console.error('Erro ao fazer parse do item:', error);
-              pedido.itens = []; // Caso não seja uma string JSON válida, atribui um array vazio
+          try {
+            // Verifica se o item existe e faz o parse corretamente
+            if (pedido.item) {
+              // Faz o parse do item (que é uma string JSON) para um array de objetos
+              pedido.itens = JSON.parse(pedido.item);
+              console.log('Itens do pedido após parse:', pedido.itens);
+            } else {
+              pedido.itens = []; // Se não houver itens, cria um array vazio
             }
-          } else {
-            pedido.itens = []; // Se o campo "item" não existe, inicializa como array vazio
-          }
   
-          console.log('Itens do pedido após correção:', pedido.itens);
+            // Agora percorremos os itens do pedido
+            pedido.itens.forEach(item => {
+              console.log('Estrutura do Item do Pedido:', item); // Exibe a estrutura completa do item
+  
+              // Acessando os dados do produto diretamente, sem validações extras
+              console.log('ID do Produto:', item.id_produto);
+              console.log('Nome do Produto:', item.nome);
+              console.log('Preço do Produto:', item.preco);
+              console.log('Quantidade do Produto:', item.quantidade);
+            });
+          } catch (error) {
+            console.error('Erro ao parsear a string de itens:', error);
+            pedido.itens = []; // Se o parse falhar, define como array vazio
+          }
         });
   
-        // Agora, trata os dados para a exibição
-        if (typeof pedidos === 'string') {
-          try {
-            pedidos = JSON.parse(pedidos);  // Tenta converter se for string
-          } catch (e) {
-            console.error('Erro ao converter pedidos:', e);
-            pedidos = [];  // Se falhar, inicializa como array vazio
-          }
-        }
-  
-        if (!Array.isArray(pedidos)) {
-          pedidos = [];
-        }
-  
+        // Atualiza a mesaSelecionada com os pedidos carregados
         this.mesaSelecionada.pedidos = pedidos;
-        console.log('Histórico de pedidos carregado:', this.mesaSelecionada.pedidos);
+        console.log('Pedidos selecionados:', this.mesaSelecionada.pedidos);
       },
       (error) => {
         console.error('Erro ao carregar histórico de pedidos:', error);
@@ -333,6 +331,10 @@ export class TblMesasComponent implements OnInit {
       }
     );
   }
+  
+  
+  
+  
   
   
 

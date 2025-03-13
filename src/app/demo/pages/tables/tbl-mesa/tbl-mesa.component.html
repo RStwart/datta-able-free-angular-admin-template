@@ -153,9 +153,9 @@
 
                 <!-- Exibir os itens do pedido -->
                 <h6>Itens do Pedido</h6>
-                <ul class="list-group">
-                  <li *ngFor="let item of pedido.itens; let i = index" [ngClass]="{ 'list-group-item': true }">
-                    {{ item.nome }} - {{ item.preco | currency }} - Quantidade: {{ item.quantidade }}
+                <ul class="list-group" *ngIf="pedido.itens && pedido.itens.length > 0">
+                  <li *ngFor="let item of pedido.itens" class="list-group-item">
+                    {{ item.nome }} - {{ item.preco | currency: 'BRL' }} - Quantidade: {{ item.quantidade }}
                   </li>
                 </ul>
 

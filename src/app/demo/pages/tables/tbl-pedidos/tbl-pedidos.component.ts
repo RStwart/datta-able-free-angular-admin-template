@@ -14,13 +14,13 @@ interface PedidoComProdutos extends Pedido {
 })
 export class TblPedidosComponent implements OnInit {
   pedidos: Pedido[] = [];
-  pedidosComProdutos: PedidoComProdutos[] = [];  // Agora com o tipo correto
+  pedidosComProdutos: PedidoComProdutos[] = [];
+  pedidosPaginados: PedidoComProdutos[] = [];
   erro: string | null = null;
   
   currentPage: number = 1;
   itemsPerPage: number = 5;
   totalPages: number = 0;
-  pedidosPaginados: PedidoComProdutos[] = [];  // Alterado para o tipo correto
   pages: number[] = [];
 
   constructor(private pedidoService: PedidoService, private toastr: ToastrService) {}
@@ -29,39 +29,82 @@ export class TblPedidosComponent implements OnInit {
     this.carregarPedidos();
   }
 
-  carregarPedidos(): void {
+  
+  carregarPedidos() {
     this.pedidoService.getPedidos().subscribe(
-      (response: Pedido[]) => {
-        this.pedidos = response;
+      (pedidos) => {
+        console.log('Pedidos recebidos:', pedidos);
+    
+        if (pedidos && pedidos.length > 0) {
+          // Mapeando os pedidos para incluir a lista de produtos de forma organizada
+          this.pedidosComProdutos = pedidos.map((pedido: Pedido) => {
+            try {
+              const produtosString = pedido.item;  // String com os produtos
+              if (produtosString && typeof produtosString === 'string') {
+                console.log('Entrou aqui');
   
-        // Debugando o conteúdo de 'pedido.item'
-        this.pedidosComProdutos = this.pedidos.map(pedido => {
-          console.log('Pedido item:', pedido.item);  // Adicione esse log
-          return {
-            ...pedido,
-            produtos: pedido.item ? JSON.parse(pedido.item) : []
-          };
-        });
+                // Converte a string de produtos em um array de objetos de produtos
+                const produtos = produtosString.split(';').map((produtoStr: string) => {
+                  console.log('PRODUTOS:', produtoStr);
   
-        this.atualizarPaginacao();
-        this.toastr.success('Pedidos carregados com sucesso!', 'Sucesso');
+                  // Remove qualquer espaço extra usando trim()
+                  const [id, nome, quantidade, preco] = produtoStr.split('|').map((campo) => campo.trim());
+  
+                  // Log para verificar se os valores estão sendo extraídos corretamente
+                  console.log('ID:', id, 'Nome:', nome, 'Quantidade:', quantidade, 'Preço:', preco);
+  
+                  // Verifica se a quantidade e o preço são válidos
+                  const quantidadeValida = !isNaN(parseInt(quantidade, 10)) ? parseInt(quantidade, 10) : 0;
+                  const precoValido = !isNaN(parseFloat(preco)) ? parseFloat(preco) : 0;
+  
+                  return {
+                    id: id || 'ID desconhecido',  // ID do produto (adicionado)
+                    nome: nome || 'Produto desconhecido',  // Nome do produto
+                    quantidade: quantidadeValida,
+                    preco: precoValido,
+                  };
+                });
+  
+                // Atribui os produtos ao pedido
+                (pedido as PedidoComProdutos).produtos = produtos;
+              } else {
+                (pedido as PedidoComProdutos).produtos = [];  // Se não houver produtos válidos
+              }
+            } catch (e) {
+              console.error('Erro ao converter pedido.item:', e);
+              (pedido as PedidoComProdutos).produtos = [];
+            }
+    
+            return pedido as PedidoComProdutos;  // Retorna o pedido com a lista de produtos
+          });
+    
+          // Atualiza a paginação após carregar os pedidos
+          this.atualizarPaginacao();
+          console.log('Pedidos com produtos:', this.pedidosComProdutos);
+        } else {
+          console.log('Nenhum pedido encontrado!');
+        }
       },
       (error) => {
-        this.erro = 'Erro ao carregar pedidos';
         console.error('Erro ao carregar pedidos:', error);
+        this.erro = 'Erro ao carregar pedidos';
         this.toastr.error('Erro ao carregar pedidos', 'Erro');
       }
     );
   }
   
+  
+
+
 
   atualizarPaginacao(): void {
-    this.totalPages = Math.ceil(this.pedidosComProdutos.length / this.itemsPerPage); // Alterado para usar pedidosComProdutos
+    this.totalPages = Math.ceil(this.pedidosComProdutos.length / this.itemsPerPage);
     this.pages = Array.from({ length: this.totalPages }, (_, i) => i + 1);
     this.pedidosPaginados = this.pedidosComProdutos.slice(
       (this.currentPage - 1) * this.itemsPerPage,
       this.currentPage * this.itemsPerPage
     );
+    console.log('Pedidos paginados:', this.pedidosPaginados);
   }
 
   changePage(page: number): void {
@@ -86,7 +129,6 @@ export class TblPedidosComponent implements OnInit {
 
     const currentIndex = statusOrder.indexOf(pedido.status as any);
 
-    // Confirmar antes de finalizar o pedido
     if (pedido.status === 'Em preparo') {
       const confirmar = confirm('Você tem certeza que deseja finalizar o pedido?');
       if (confirmar) {
@@ -99,11 +141,9 @@ export class TblPedidosComponent implements OnInit {
           }
         );
       } else {
-        // Se o usuário clicar em "Não", mantemos o status anterior
         this.toastr.info('Status do pedido não alterado.', 'Info');
       }
     } else {
-      // Caso contrário, alterna entre "Solicitado" e "Em preparo"
       pedido.status = statusOrder[(currentIndex + 1) % statusOrder.length];
       this.pedidoService.updatePedido(pedido.id_pedido.toString(), pedido).subscribe(
         () => this.toastr.success('Status atualizado!', 'Sucesso'),
@@ -129,7 +169,6 @@ export class TblPedidosComponent implements OnInit {
         }
       );
     } else {
-      // Se o usuário clicar em "Não", mantemos o status anterior
       this.toastr.info('Status do pedido não alterado.', 'Info');
     }
   }

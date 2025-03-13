@@ -305,14 +305,14 @@ app.get('/api/pedidos/:id', (req, res) => {
 // Rota PUT para atualizar um pedido
 app.put('/api/pedidos/:id', (req, res) => {
   const { id } = req.params;
-  const { id_mesa, status, total, data, produtos } = req.body;
+  const { id_mesa, status } = req.body;
 
   const query = `
     UPDATE pedidos
-    SET id_mesa = ?, status = ?, total = ?, data = ?, produtos = ?
+    SET id_mesa = ?, status = ?
     WHERE id_pedido = ?
   `;
-  const values = [id_mesa, status, total, data, JSON.stringify(produtos), id];
+  const values = [id_mesa, status, id];
 
   db.query(query, values, (err, result) => {
     if (err) {

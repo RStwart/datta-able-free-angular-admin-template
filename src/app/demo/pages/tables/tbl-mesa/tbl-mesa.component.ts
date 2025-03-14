@@ -19,10 +19,10 @@ export class TblMesasComponent implements OnInit {
   mostrarModal: boolean = false;
   mostrarModalDetalhes: boolean = false;
   
-
   mesaSelecionada: Mesa | null = null;
   erro: string | null = null;
   filtroProduto: string = '';
+  observacao: string = ''; // Variável para armazenar a observação
 
   novaMesa: Mesa = {
     id_mesa: 0,
@@ -182,6 +182,7 @@ export class TblMesasComponent implements OnInit {
   }
 
   finalizarPedido(): void {
+
     if (this.mesaSelecionada) {
       // Calcular o total do pedido
       const totalPedido = this.calcularTotalPedido();
@@ -201,8 +202,11 @@ export class TblMesasComponent implements OnInit {
         status: 'Solicitado',  // Status do pedido
         total: totalPedido,  // O total calculado do pedido
         item: itensFormatados, // Enviando a string formatada
+        observacao: this.observacao || '',  // Adicionando a observação
       };
   
+      console.log('Pedido enviado:', pedido);  // Verifique se o pedido está correto
+
       // Adicionar o pedido usando o PedidoService
       this.pedidoService.addPedido(pedido).subscribe(
         (response) => {

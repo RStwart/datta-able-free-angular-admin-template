@@ -9,7 +9,7 @@
             <button class="btn btn-danger btn-cancelar" (click)="cancelarPedido(pedido, $event)">❌</button>
             <div class="card-body text-center">
               <h5 class="card-title fw-bold">Mesa: {{ pedido.id_mesa }}</h5>
-             
+          
               <!-- Lista de produtos do pedido -->
                
               <ul class="list-unstyled">
@@ -17,6 +17,8 @@
                   <h5 class="card-title fw-bold">{{ produto.quantidade }} - {{ produto.nome }} - R$ {{ produto.preco.toFixed(2) }}</h5>
                 </li>
               </ul>
+
+              <h5 class="card-title fw-bold">OBSERVAÇÕES: {{ pedido.observacao }}</h5>
 
               <!-- Botão Finalizar -->
               <div class="mt-3">

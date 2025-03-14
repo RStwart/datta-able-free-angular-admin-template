@@ -184,12 +184,11 @@ export class TblMesasComponent implements OnInit {
     if (this.mesaSelecionada) {
       // Calcular o total do pedido
       const totalPedido = this.calcularTotalPedido();
-  
       console.log('ITEM ENVIADOS', this.mesaSelecionada.pedidos);
   
       // Criar a string personalizada para os itens do pedido
       const itensFormatados = this.mesaSelecionada.pedidos.map((pedido: any) => {
-        console.log('NOME DOS PEDIDOS',pedido);
+        console.log('NOME DOS PEDIDOS', pedido);
         return `${pedido.id_produto}|${pedido.nome}|${pedido.quantidade}|${pedido.preco}`;
       }).join('; ');
   
@@ -207,6 +206,24 @@ export class TblMesasComponent implements OnInit {
       this.pedidoService.addPedido(pedido).subscribe(
         (response) => {
           this.toastr.success('Pedido finalizado e adicionado com sucesso!', 'Sucesso');
+          
+          // Atualizar o totalConsumido da mesa
+          const novoTotalConsumo = parseFloat(String(this.mesaSelecionada.totalConsumo || '0')) + totalPedido;
+  
+          // Atualizar a mesa com o novo total consumido
+          this.mesaSelecionada.totalConsumo = parseFloat(novoTotalConsumo.toFixed(2));
+  
+          // Agora, faça a chamada para atualizar o total no backend
+          this.mesaService.atualizarTotalConsumo(this.mesaSelecionada.id_mesa.toString(), novoTotalConsumo).subscribe(
+            (updateResponse) => {
+              console.log('Total de consumo atualizado com sucesso:', updateResponse);
+            },
+            (error) => {
+              console.error('Erro ao atualizar o total de consumo:', error);
+              this.toastr.error('Erro ao atualizar o total de consumo', 'Erro');
+            }
+          );
+  
           this.fecharModal();
         },
         (error) => {
@@ -223,6 +240,14 @@ export class TblMesasComponent implements OnInit {
     this.mesaService.getMesas().subscribe(
       (response: Mesa[]) => {
         this.mesas = response;
+
+        this.mesas.forEach(mesa => {
+          // Garantindo que o valor de total_consumido seja um número, caso precise.
+          if (!mesa.totalConsumo) {
+            mesa.totalConsumo = 0; // Definindo um valor padrão caso seja null ou undefined
+          }
+        });
+
         this.atualizarPaginacao();
         this.toastr.success('Mesas carregadas com sucesso!', 'Sucesso');
       },
@@ -296,29 +321,45 @@ export class TblMesasComponent implements OnInit {
   
         pedidos.forEach(pedido => {
           try {
-            // Verifica se o item existe e faz o parse corretamente
-            if (pedido.item) {
-              // Faz o parse do item (que é uma string JSON) para um array de objetos
-              pedido.itens = JSON.parse(pedido.item);
-              console.log('Itens do pedido após parse:', pedido.itens);
+            // Verifica se o item existe e faz a conversão corretamente
+            const produtosString = pedido.item;  // String com os produtos
+  
+            if (produtosString && typeof produtosString === 'string') {
+              console.log('Entrou aqui');
+  
+              // Converte a string de produtos em um array de objetos de produtos
+              pedido.itens = produtosString.split(';').map((produtoStr: string) => {
+                console.log('PRODUTO:', produtoStr);
+  
+                // Remove qualquer espaço extra usando trim()
+                const [id, nome, quantidade, preco] = produtoStr.split('|').map((campo) => campo.trim());
+  
+                // Log para verificar se os valores estão sendo extraídos corretamente
+                console.log('ID:', id, 'Nome:', nome, 'Quantidade:', quantidade, 'Preço:', preco);
+  
+                // Verifica se a quantidade e o preço são válidos
+                const quantidadeValida = !isNaN(parseInt(quantidade, 10)) ? parseInt(quantidade, 10) : 0;
+                const precoValido = !isNaN(parseFloat(preco)) ? parseFloat(preco) : 0;
+  
+                return {
+                  id: id || 'ID desconhecido',  // ID do produto (adicionado)
+                  nome: nome || 'Produto desconhecido',  // Nome do produto
+                  quantidade: quantidadeValida,
+                  preco: precoValido,
+                };
+              });
+  
+              console.log('Itens do pedido após conversão:', pedido.itens);
             } else {
-              pedido.itens = []; // Se não houver itens, cria um array vazio
+              pedido.itens = [];  // Se não houver itens válidos, cria um array vazio
             }
-  
-            // Agora percorremos os itens do pedido
-            pedido.itens.forEach(item => {
-              console.log('Estrutura do Item do Pedido:', item); // Exibe a estrutura completa do item
-  
-              // Acessando os dados do produto diretamente, sem validações extras
-              console.log('ID do Produto:', item.id_produto);
-              console.log('Nome do Produto:', item.nome);
-              console.log('Preço do Produto:', item.preco);
-              console.log('Quantidade do Produto:', item.quantidade);
-            });
-          } catch (error) {
-            console.error('Erro ao parsear a string de itens:', error);
-            pedido.itens = []; // Se o parse falhar, define como array vazio
+          } catch (e) {
+            pedido.itens = [];
+            console.error('Erro ao converter pedido.item:', e);
           }
+  
+          // Log para verificar a estrutura do pedido
+          console.log('Pedido após conversão:', pedido);
         });
   
         // Atualiza a mesaSelecionada com os pedidos carregados
@@ -331,9 +372,6 @@ export class TblMesasComponent implements OnInit {
       }
     );
   }
-  
-  
-  
   
   
   

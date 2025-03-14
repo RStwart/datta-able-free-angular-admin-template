@@ -9,6 +9,7 @@
               <h5 class="card-title mesa-title">Mesa {{ mesa.numero }}</h5>
               <!-- <p class="card-text mesa-status"><strong>Status:</strong> {{ mesa.status }}</p> -->
               <p class="card-text mesa-capacidade"><strong>Clientes:</strong> {{ mesa.capacidade }} pessoas</p>
+              <p class="card-text mesa-status"><strong>Consumo total:</strong> {{ mesa.totalConsumo | currency: 'BRL' }}</p>
 
               <div class="d-flex justify-content-between">
                 <!-- <button class="btn btn-danger btn-lg" (click)="excluirMesa(mesa.id_mesa)">Excluir</button> -->
@@ -121,7 +122,7 @@
         <h3><strong>Total:</strong></h3>
         <h3><strong>{{ calcularTotalPedido() | currency: 'BRL' }}</strong></h3>
         
-        <button class="btn btn-primary" (click)="finalizarPedido()">Finalizar Pedido</button>
+        <button class="btn btn-primary" (click)="finalizarPedido()">Solicitar Pedido</button>
         <button class="btn btn-secondary" (click)="fecharModal()">Fechar</button>
       </div>
     </div>
@@ -152,7 +153,7 @@
 
                 <!-- Exibir os itens do pedido -->
                 <h6>Itens do Pedido</h6>
-                <ul class="list-group" *ngIf="pedido.itens && pedido.itens.length > 0">
+                <ul class="list-group" *ngIf="pedido.itens?.length > 0">
                   <li *ngFor="let item of pedido.itens" class="list-group-item">
                     {{ item.nome }} - {{ item.preco | currency: 'BRL' }} - Quantidade: {{ item.quantidade }}
                   </li>

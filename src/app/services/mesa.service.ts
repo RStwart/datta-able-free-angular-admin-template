@@ -35,4 +35,13 @@ export class MesaService {
   deleteMesa(id: string): Observable<any> {
     return this.http.delete(`${this.apiUrl}/mesas/${id}`);
   }
+
+
+   // Método para atualizar o total de consumo de uma mesa
+   atualizarTotalConsumo(idMesa: string, novoTotalConsumo: number): Observable<any> {
+    const url = `${this.apiUrl}/mesas/${idMesa}`;
+    const body = { totalConsumo: novoTotalConsumo };  // Corpo com o novo total consumido
+    return this.http.put(url, body);  // Requisição PUT para atualizar
+  }
+
 }

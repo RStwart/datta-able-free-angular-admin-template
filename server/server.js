@@ -181,29 +181,61 @@ app.post('/api/mesas', (req, res) => {
   });
 });
 
-// Rota PUT para atualizar uma mesa pelo ID
 app.put('/api/mesas/:id', (req, res) => {
   const { id } = req.params;
-  const { numero, capacidade, status, pedidos, garcom, horaAbertura, totalConsumo } = req.body;
-  const query = `
-    UPDATE mesa
-    SET numero = ?, capacidade = ?, status = ?, pedidos = ?, garcom = ?, horaAbertura = ?, totalConsumo = ?
-    WHERE id_mesa = ?
-  `;
-  const values = [numero, capacidade, status, JSON.stringify(pedidos), garcom, horaAbertura, totalConsumo, id];
+  const fieldsToUpdate = [];
+  const values = [];
+
+  // Adiciona os campos que foram enviados no corpo da requisição
+  if (req.body.numero !== undefined) {
+    fieldsToUpdate.push('numero = ?');
+    values.push(req.body.numero);
+  }
+  if (req.body.capacidade !== undefined) {
+    fieldsToUpdate.push('capacidade = ?');
+    values.push(req.body.capacidade);
+  }
+  if (req.body.status !== undefined) {
+    fieldsToUpdate.push('status = ?');
+    values.push(req.body.status);
+  }
+  if (req.body.pedidos !== undefined) {
+    fieldsToUpdate.push('pedidos = ?');
+    values.push(JSON.stringify(req.body.pedidos));
+  }
+  if (req.body.garcom !== undefined) {
+    fieldsToUpdate.push('garcom = ?');
+    values.push(req.body.garcom);
+  }
+  if (req.body.horaAbertura !== undefined) {
+    fieldsToUpdate.push('horaAbertura = ?');
+    values.push(req.body.horaAbertura);
+  }
+  if (req.body.totalConsumo !== undefined) {
+    fieldsToUpdate.push('totalConsumo = ?');
+    values.push(req.body.totalConsumo);
+  }
+
+  // Se nenhum campo foi enviado, retorna um erro
+  if (fieldsToUpdate.length === 0) {
+    return res.status(400).json({ error: 'Nenhum campo para atualizar' });
+  }
+
+  values.push(id);
+  const query = `UPDATE mesa SET ${fieldsToUpdate.join(', ')} WHERE id_mesa = ?`;
 
   db.query(query, values, (err, result) => {
     if (err) {
       console.error('Erro ao atualizar mesa:', err);
-      res.status(500).json({ error: 'Erro ao atualizar mesa' });
-    } else if (result.affectedRows === 0) {
-      res.status(404).json({ error: 'Mesa não encontrada' });
-    } else {
-      console.log('Mesa atualizada com sucesso:', id);
-      res.json({ message: 'Mesa atualizada com sucesso' });
+      return res.status(500).json({ error: 'Erro ao atualizar mesa' });
     }
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: 'Mesa não encontrada' });
+    }
+    res.json({ message: 'Mesa atualizada com sucesso' });
   });
 });
+
 
 // Rota DELETE para deletar uma mesa pelo ID
 app.delete('/api/mesas/:id', (req, res) => {

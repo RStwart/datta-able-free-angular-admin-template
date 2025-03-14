@@ -7,4 +7,5 @@ export interface Mesa {
   garcom?: string;       // Nome do garçom responsável
   horaAbertura?: string; // Horário de abertura da mesa
   totalConsumo: number;  // Total consumido na mesa
+  totalMesa?: number;  // Adicionando a propriedade totalMesa
 }

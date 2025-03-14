@@ -18,6 +18,7 @@ export class TblMesasComponent implements OnInit {
   
   mostrarModal: boolean = false;
   mostrarModalDetalhes: boolean = false;
+  
 
   mesaSelecionada: Mesa | null = null;
   erro: string | null = null;
@@ -319,52 +320,65 @@ export class TblMesasComponent implements OnInit {
       (pedidos: any) => {
         console.log('Pedidos carregados:', pedidos);
   
-        pedidos.forEach(pedido => {
-          try {
-            // Verifica se o item existe e faz a conversão corretamente
-            const produtosString = pedido.item;  // String com os produtos
+        let totalMesa = 0;  // Inicializa o total da mesa como 0
   
-            if (produtosString && typeof produtosString === 'string') {
-              console.log('Entrou aqui');
+        if (pedidos && pedidos.length > 0) {
+          pedidos.forEach(pedido => {
+            let totalPedido = 0;  // Inicializa o total do pedido como 0
   
-              // Converte a string de produtos em um array de objetos de produtos
-              pedido.itens = produtosString.split(';').map((produtoStr: string) => {
-                console.log('PRODUTO:', produtoStr);
+            try {
+              // Verifica se o item existe e faz a conversão corretamente
+              const produtosString = pedido.item;  // String com os produtos
   
-                // Remove qualquer espaço extra usando trim()
-                const [id, nome, quantidade, preco] = produtoStr.split('|').map((campo) => campo.trim());
+              if (produtosString && typeof produtosString === 'string') {
+                // Converte a string de produtos em um array de objetos de produtos
+                pedido.itens = produtosString.split(';').map((produtoStr: string) => {
+                  // Remove qualquer espaço extra usando trim()
+                  const [id, nome, quantidade, preco] = produtoStr.split('|').map((campo) => campo.trim());
+    
+                  // Verifica se a quantidade e o preço são válidos
+                  const quantidadeValida = !isNaN(parseInt(quantidade, 10)) ? parseInt(quantidade, 10) : 0;
+                  const precoValido = !isNaN(parseFloat(preco)) ? parseFloat(preco) : 0;
+    
+                  // Calcular o total do item (preço * quantidade)
+                  totalPedido += precoValido * quantidadeValida;
   
-                // Log para verificar se os valores estão sendo extraídos corretamente
-                console.log('ID:', id, 'Nome:', nome, 'Quantidade:', quantidade, 'Preço:', preco);
-  
-                // Verifica se a quantidade e o preço são válidos
-                const quantidadeValida = !isNaN(parseInt(quantidade, 10)) ? parseInt(quantidade, 10) : 0;
-                const precoValido = !isNaN(parseFloat(preco)) ? parseFloat(preco) : 0;
-  
-                return {
-                  id: id || 'ID desconhecido',  // ID do produto (adicionado)
-                  nome: nome || 'Produto desconhecido',  // Nome do produto
-                  quantidade: quantidadeValida,
-                  preco: precoValido,
-                };
-              });
-  
-              console.log('Itens do pedido após conversão:', pedido.itens);
-            } else {
-              pedido.itens = [];  // Se não houver itens válidos, cria um array vazio
+                  return {
+                    id: id || 'ID desconhecido',  // ID do produto (adicionado)
+                    nome: nome || 'Produto desconhecido',  // Nome do produto
+                    quantidade: quantidadeValida,
+                    preco: precoValido,
+                  };
+                });
+                console.log('Itens do pedido após conversão:', pedido.itens);
+              } else {
+                pedido.itens = [];  // Se não houver itens válidos, cria um array vazio
+              }
+            } catch (e) {
+              pedido.itens = [];
+              console.error('Erro ao converter pedido.item:', e);
             }
-          } catch (e) {
-            pedido.itens = [];
-            console.error('Erro ao converter pedido.item:', e);
-          }
   
-          // Log para verificar a estrutura do pedido
-          console.log('Pedido após conversão:', pedido);
-        });
+            // Atribui o total calculado para cada pedido
+            pedido.totalPedido = totalPedido;
   
-        // Atualiza a mesaSelecionada com os pedidos carregados
-        this.mesaSelecionada.pedidos = pedidos;
-        console.log('Pedidos selecionados:', this.mesaSelecionada.pedidos);
+            // Adiciona o total do pedido ao total da mesa
+            totalMesa += totalPedido;
+  
+            // Log para verificar a estrutura do pedido
+            console.log('Pedido após conversão:', pedido);
+          });
+  
+          // Atualiza a mesaSelecionada com os pedidos carregados
+          this.mesaSelecionada.pedidos = pedidos;
+          this.mesaSelecionada.totalMesa = totalMesa;  // Atualiza o total da mesa
+          console.log('Pedidos selecionados:', this.mesaSelecionada.pedidos);
+          console.log('Total da Mesa:', totalMesa);
+        } else {
+          console.log('Nenhum pedido encontrado para essa mesa');
+          this.mesaSelecionada.pedidos = [];
+          this.mesaSelecionada.totalMesa = 0;  // Caso não haja pedidos, o total da mesa é 0
+        }
       },
       (error) => {
         console.error('Erro ao carregar histórico de pedidos:', error);
@@ -372,6 +386,7 @@ export class TblMesasComponent implements OnInit {
       }
     );
   }
+  
   
   
   

@@ -174,9 +174,14 @@
         </div>
       </div>
 
-      <div class="modal-footer">
-        <button class="btn btn-secondary" (click)="fecharModals()">Fechar</button>
+      <div class="modal-footer" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+        <h6 style="font-size: 1.5rem; margin-right: auto;"><strong>Total da Mesa:</strong> R$ {{ mesaSelecionada?.totalConsumo | currency: 'BRL' }}</h6>
+        <div style="display: flex; gap: 10px;">
+          <button class="btn btn-primary" (click)="fecharModals()">Finalizar Mesa</button>
+          <button class="btn btn-secondary" (click)="fecharModals()">Fechar</button>
+        </div>
       </div>
+
     </div>
   </div>
 </div>

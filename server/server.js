@@ -278,7 +278,7 @@ app.post('/api/pedidos', (req, res) => {
 
 
 app.get('/api/pedidos', (req, res) => {
-  db.query('SELECT * FROM pedidos', (err, results) => {
+  db.query('SELECT * FROM pedidos where  status != "Finalizado"', (err, results) => {
     if (err) {
       console.error('Erro ao consultar os pedidos:', err);
       res.status(500).json({ error: 'Erro ao obter pedidos', details: err });

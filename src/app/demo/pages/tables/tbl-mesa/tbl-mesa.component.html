@@ -185,6 +185,7 @@
         <h6 style="font-size: 1.5rem; margin-right: auto;"><strong>Total da Mesa:</strong> R$ {{ mesaSelecionada?.totalConsumo | currency: 'BRL' }}</h6>
         <div style="display: flex; gap: 10px;">
           <button class="btn btn-primary" (click)="fecharModals()">Finalizar Mesa</button>
+          <button class="btn btn-success" (click)="imprimirHistoricoMesa()">Imprimir historico</button>
           <button class="btn btn-secondary" (click)="fecharModals()">Fechar</button>
         </div>
       </div>

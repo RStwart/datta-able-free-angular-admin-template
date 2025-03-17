@@ -9,6 +9,7 @@ export interface Produto {
 export interface Pedido {
   id_pedido: number;           // ID único do pedido
   id_mesa: number;             // ID da mesa a qual o pedido pertence
+  numero: number;
   data: string;                // Data e hora do pedido
   status: 'Solicitado' | 'Em preparo' | 'Finalizado';  // Status do pedido (pode ser 'Solicitado', 'Em preparo' ou 'Finalizado')
   total: number;               // Total do pedido (soma dos itens)

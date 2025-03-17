@@ -47,7 +47,7 @@ app.use('/uploads', express.static('uploads'));
 
 // Rota POST para imprimir o pedido sem salvar no banco
 app.post('/api/imprimir-pedido', (req, res) => {
-  const { id_mesa, total, item, observacao } = req.body;
+  const { id_mesa,numero, total, item, observacao } = req.body;
 
   // Verificar se os dados necessários foram passados
   if (!id_mesa || !total || !item) {
@@ -62,7 +62,7 @@ app.post('/api/imprimir-pedido', (req, res) => {
 
   // Formatar o conteúdo do ticket (não vai para o banco)
   const content = `
-* Mesa: ${id_mesa}           
+* Mesa: ${numero}           
 PEIDO:
 ${itensArray.map(i => `* ${i.quantidade}X -- ${i.nome} `).join('\n')}  
 * Observação: ${observacao || 'Nenhuma'} 
@@ -96,6 +96,78 @@ ${itensArray.map(i => `* ${i.quantidade}X -- ${i.nome} `).join('\n')}
 
     // Responder ao cliente que a impressão foi realizada com sucesso
     res.status(200).json({ message: 'Pedido impresso com sucesso' });
+  });
+});
+
+
+
+// Rota POST para imprimir o histórico de pedidos de uma mesa
+app.post('/api/imprimir-historico-mesa', (req, res) => {
+  const { id_mesa, pedidos } = req.body;
+
+  // Verificar se os dados necessários foram passados
+  if (!id_mesa || !pedidos || pedidos.length === 0) {
+    return res.status(400).json({ error: 'Faltando dados obrigatórios para imprimir o histórico de pedidos' });
+  }
+
+  // Formatar o conteúdo do histórico de pedidos
+  let content = `Histórico de Pedidos - Mesa: ${id_mesa}\n`;
+  content += '***************************************\n';
+
+  pedidos.forEach((pedido, index) => {
+    content += `Pedido ${index + 1} - Data: ${new Date(pedido.data).toLocaleDateString()} ${new Date(pedido.data).toLocaleTimeString()}\n`;
+    content += `Status: ${pedido.status}\n`;
+    
+    // Garantir que pedido.total seja um número antes de usar toFixed()
+    let total = parseFloat(pedido.total);
+    if (!isNaN(total)) {
+      content += `Total: R$ ${total.toFixed(2)}\n`;
+    } else {
+      content += `Total: R$ 0.00\n`;  // Caso total seja inválido, define como 0.00
+    }
+
+    content += 'Itens:\n';
+
+    pedido.itens.forEach(item => {
+      let preco = parseFloat(item.preco); // Garantir que item.preco seja um número
+      if (!isNaN(preco)) {
+        content += `* ${item.quantidade}X -- ${item.nome} - R$ ${preco.toFixed(2)} cada\n`;
+      } else {
+        content += `* ${item.quantidade}X -- ${item.nome} - R$ 0.00 cada\n`; // Caso o preço seja inválido, define como 0.00
+      }
+    });
+
+    content += `Observação: ${pedido.observacao || 'Nenhuma'}\n`;
+    content += '***************************************\n\n';
+  });
+
+  // Caminho do arquivo temporário de ticket
+  const filePath = path.resolve(__dirname, `ticket_temp_${id_mesa}.txt`);
+
+  // Criar o arquivo de ticket
+  fs.writeFileSync(filePath, content, 'utf8');
+  console.log(`Arquivo de ticket criado: ${filePath}`);
+
+  // Enviar para impressão via Notepad
+  exec(`notepad /p "${filePath}"`, (err, stdout, stderr) => {
+    if (err) {
+      console.error('Erro ao imprimir:', err);
+      return res.status(500).json({ error: 'Erro ao imprimir o histórico de pedidos' });
+    }
+
+    console.log('Histórico de pedidos enviado para impressão!');
+
+    // Deletar o arquivo de ticket após a impressão
+    fs.unlink(filePath, (err) => {
+      if (err) {
+        console.error('Erro ao excluir o arquivo de ticket:', err);
+      } else {
+        console.log('Arquivo de ticket excluído');
+      }
+    });
+
+    // Responder ao cliente que a impressão foi realizada com sucesso
+    res.status(200).json({ message: 'Histórico de pedidos impresso com sucesso' });
   });
 });
 

@@ -199,6 +199,7 @@ export class TblMesasComponent implements OnInit {
       const pedido: Pedido = {
         id_pedido: 0,  // Este ID será gerado pelo backend
         id_mesa: this.mesaSelecionada.id_mesa,
+        numero: this.mesaSelecionada.numero,
         data: new Date().toISOString().slice(0, 19).replace('T', ' '),  // Formato correto para o MySQL
         status: 'Solicitado',  // Status do pedido
         total: totalPedido,  // O total calculado do pedido
@@ -330,6 +331,27 @@ export class TblMesasComponent implements OnInit {
     }
   }
 
+
+  imprimirHistoricoMesa(): void {
+    if (!this.mesaSelecionada || !this.mesaSelecionada.pedidos || this.mesaSelecionada.pedidos.length === 0) {
+      alert('Nenhum pedido encontrado para esta mesa!');
+      return;
+    }
+  
+    this.pedidoService.imprimirHistoricoMesa(this.mesaSelecionada.numero, this.mesaSelecionada.pedidos).subscribe({
+      next: (response) => {
+        console.log('Histórico de pedidos impresso com sucesso!', response);
+        alert('Histórico de pedidos impresso com sucesso!');
+      },
+      error: (error) => {
+        console.error('Erro ao tentar imprimir o histórico de pedidos:', error);
+        alert('Erro ao tentar imprimir o histórico de pedidos.');
+      }
+    });
+  }
+  
+
+
   carregarHistoricoPedidos(id_mesa: number): void {
     this.pedidoService.getHistoricoPedidosPorMesa(id_mesa).subscribe(
       (pedidos: any) => {
@@ -401,10 +423,8 @@ export class TblMesasComponent implements OnInit {
       }
     );
   }
-  
-  
-  
-  
+
+
 
   abrirModalDetalhes(mesa: Mesa): void {
     this.mesaSelecionada = { ...mesa }; // Faz uma cópia da mesa

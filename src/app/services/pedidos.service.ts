@@ -55,4 +55,10 @@ export class PedidoService {
   removerProdutoDoPedido(idPedido: number, idProduto: number): Observable<any> {
     return this.http.delete(`${this.apiUrl}/pedidos/${idPedido}/produtos/${idProduto}`);
   }
+
+  // Método para imprimir o pedido antes de salvar no banco de dados
+  imprimirPedido(pedido: any): Observable<any> {
+    return this.http.post(`${this.apiUrl}/imprimir-pedido`, pedido);
+  }
+
 }

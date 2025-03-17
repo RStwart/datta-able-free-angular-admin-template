@@ -181,6 +181,7 @@ export class TblMesasComponent implements OnInit {
     }
   }
 
+  
   finalizarPedido(): void {
 
     if (this.mesaSelecionada) {
@@ -206,12 +207,12 @@ export class TblMesasComponent implements OnInit {
       };
   
       console.log('Pedido enviado:', pedido);  // Verifique se o pedido está correto
-
-      // Adicionar o pedido usando o PedidoService
+  
+      // Adicionar o pedido no banco de dados primeiro
       this.pedidoService.addPedido(pedido).subscribe(
         (response) => {
           this.toastr.success('Pedido finalizado e adicionado com sucesso!', 'Sucesso');
-          
+  
           // Atualizar o totalConsumido da mesa
           const novoTotalConsumo = parseFloat(String(this.mesaSelecionada.totalConsumo || '0')) + totalPedido;
   
@@ -229,7 +230,17 @@ export class TblMesasComponent implements OnInit {
             }
           );
   
-          this.fecharModal();
+          // Agora que o pedido foi adicionado e o total foi atualizado, imprima o pedido
+          this.pedidoService.imprimirPedido(pedido).subscribe(
+            (impressaoResponse) => {
+              console.log('Pedido impresso com sucesso', impressaoResponse);
+              this.fecharModal();
+            },
+            (error) => {
+              console.error('Erro ao imprimir o pedido:', error);
+              this.toastr.error('Erro ao imprimir o pedido', 'Erro');
+            }
+          );
         },
         (error) => {
           console.error('Erro ao adicionar o pedido:', error);

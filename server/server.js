@@ -3,7 +3,11 @@ const express = require('express');
 const mysql = require('mysql2');
 const cors = require('cors');
 const multer = require('multer');
+
 const path = require('path');
+const fs = require('fs');
+const { exec } = require('child_process');
+
 
 const app = express();
 const port = process.env.PORT || 5000;
@@ -39,6 +43,64 @@ const upload = multer({ storage: storage });
 
 // Middleware para servir arquivos estáticos da pasta 'uploads'
 app.use('/uploads', express.static('uploads'));
+
+
+// Rota POST para imprimir o pedido sem salvar no banco
+app.post('/api/imprimir-pedido', (req, res) => {
+  const { id_mesa, total, item, observacao } = req.body;
+
+  // Verificar se os dados necessários foram passados
+  if (!id_mesa || !total || !item) {
+    return res.status(400).json({ error: 'Faltando dados obrigatórios para imprimir o pedido' });
+  }
+
+  // Dividir a string 'item' em um array de itens
+  const itensArray = item.split(';').map(pedido => {
+    const [id_produto, nome, quantidade, preco] = pedido.split('|');
+    return { id_produto, nome, quantidade, preco };
+  });
+
+  // Formatar o conteúdo do ticket (não vai para o banco)
+  const content = `
+* Mesa: ${id_mesa}           
+PEIDO:
+${itensArray.map(i => `* ${i.quantidade}X -- ${i.nome} `).join('\n')}  
+* Observação: ${observacao || 'Nenhuma'} 
+***************************************
+`;
+
+  // Caminho do arquivo temporário de ticket
+  const filePath = path.resolve(__dirname, `ticket_temp_${id_mesa}.txt`);
+
+  // Criar o arquivo de ticket
+  fs.writeFileSync(filePath, content, 'utf8');
+  console.log(`Arquivo de ticket criado: ${filePath}`);
+
+  // Enviar para impressão via Notepad
+  exec(`notepad /p "${filePath}"`, (err, stdout, stderr) => {
+    if (err) {
+      console.error('Erro ao imprimir:', err);
+      return res.status(500).json({ error: 'Erro ao imprimir o pedido' });
+    }
+
+    console.log('Pedido enviado para impressão!');
+
+    // Deletar o arquivo de ticket após a impressão
+    fs.unlink(filePath, (err) => {
+      if (err) {
+        console.error('Erro ao excluir o arquivo de ticket:', err);
+      } else {
+        console.log('Arquivo de ticket excluído');
+      }
+    });
+
+    // Responder ao cliente que a impressão foi realizada com sucesso
+    res.status(200).json({ message: 'Pedido impresso com sucesso' });
+  });
+});
+
+
+
 
 // Rota GET para obter todos os produtos
 app.get('/api/produtos', (req, res) => {

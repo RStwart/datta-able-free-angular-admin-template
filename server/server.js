@@ -539,71 +539,47 @@ app.delete('/api/pedidos/:id', (req, res) => {
 });
 
 
-// Rota para inserir uma nova venda
-app.post('/vendas', (req, res) => {
-  const { id_mesa, numero_mesa, total, data_venda, nota, status_venda, tipo_pagamento } = req.body;
+// Rota POST para adicionar uma nova venda
+app.post('/api/vendas', (req, res) => {
+  const { id_mesa, numero_mesa, total, data_venda, nota, status_venda, tipo_pagamento, movimento } = req.body;
 
-  // Valida os dados
-  if (!id_mesa || !numero_mesa || !total || !data_venda || !nota || !status_venda || !tipo_pagamento) {
-    return res.status(400).json({ error: 'Todos os campos são obrigatórios!' });
-  }
-
-  // Comando SQL para inserir os dados na tabela Vendas
+  // Insira a venda na tabela 'vendas'
   const query = `
-    INSERT INTO Vendas (id_mesa, numero_mesa, total, data_venda, nota, status_venda, tipo_pagamento)
-    VALUES (?, ?, ?, ?, ?, ?, ?)
+    INSERT INTO vendas (id_mesa, numero_mesa, total, data_venda, nota, status_venda, tipo_pagamento, movimento)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
   `;
+  const values = [id_mesa, numero_mesa, total, data_venda, nota, status_venda, tipo_pagamento, movimento];
 
-  // Executa o comando SQL
-  db.execute(query, [id_mesa, numero_mesa, total, data_venda, nota, status_venda, tipo_pagamento], (err, result) => {
+  // Verificar os dados recebidos
+  console.log('Dados recebidos para a venda:', req.body);
+
+  db.query(query, values, (err, result) => {
     if (err) {
-      console.error('Erro ao inserir dados na tabela Vendas:', err);
-      return res.status(500).json({ error: 'Erro ao processar a venda!' });
+      console.error('Erro ao adicionar venda:', err);
+      res.status(500).json({ error: 'Erro ao adicionar venda' });
+    } else {
+      console.log('Venda adicionada com sucesso:', result);
+      res.status(201).json({ message: 'Venda adicionada com sucesso', id_venda: result.insertId });
     }
-
-    // Retorna uma resposta de sucesso
-    res.status(201).json({
-      message: 'Venda registrada com sucesso!',
-      venda_id: result.insertId
-    });
   });
 });
 
 
-// Rota para recuperar todas as vendas
-app.get('/vendas', (req, res) => {
-  const query = 'SELECT * FROM Vendas';
+// Rota GET para listar todas as vendas
+app.get('/api/vendas', (req, res) => {
+  // Query SQL para buscar todas as vendas
+  const query = 'SELECT * FROM vendas';
 
-  db.execute(query, (err, result) => {
+  db.query(query, (err, results) => {
     if (err) {
-      console.error('Erro ao buscar vendas:', err);
-      return res.status(500).json({ error: 'Erro ao recuperar as vendas!' });
+      console.error('Erro ao listar vendas:', err);
+      return res.status(500).json({ error: 'Erro ao listar vendas' });
     }
 
-    res.status(200).json(result);
+    // Retorna os resultados para o frontend
+    res.status(200).json(results);
   });
 });
-
-// Rota para recuperar uma venda específica por id_venda
-app.get('/vendas/:id_venda', (req, res) => {
-  const { id_venda } = req.params;
-
-  const query = 'SELECT * FROM Vendas WHERE id_venda = ?';
-
-  db.execute(query, [id_venda], (err, result) => {
-    if (err) {
-      console.error('Erro ao buscar venda:', err);
-      return res.status(500).json({ error: 'Erro ao recuperar a venda!' });
-    }
-
-    if (result.length === 0) {
-      return res.status(404).json({ message: 'Venda não encontrada!' });
-    }
-
-    res.status(200).json(result[0]);
-  });
-});
-
 
 
 

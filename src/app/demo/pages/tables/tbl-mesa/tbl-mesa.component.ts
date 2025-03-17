@@ -6,6 +6,9 @@ import { Produto } from 'src/app/interfaces/produto.interface';
 import { ToastrService } from 'ngx-toastr';
 import { Pedido } from 'src/app/interfaces/pedidos.interface';  // Importe a interface Pedido
 import { PedidoService } from 'src/app/services/pedidos.service';  // Adicione a importação
+import { VendasService } from 'src/app/services/vendas.service';  // Adicione a importação
+import { Venda } from 'src/app/interfaces/vendas.interface';  // Importe a interface Pedido
+
 
 @Component({
   selector: 'app-tbl-mesas',
@@ -49,7 +52,8 @@ export class TblMesasComponent implements OnInit {
     private mesaService: MesaService,
     private produtoService: ProdutoService,
     private pedidoService: PedidoService, // Injetando o PedidoService
-    private toastr: ToastrService
+    private toastr: ToastrService,
+    private VendasService: VendasService
   ) {}
 
   ngOnInit(): void {
@@ -449,24 +453,43 @@ export class TblMesasComponent implements OnInit {
 
 
  // Função para finalizar a mesa com confirmação
-finalizarMesa(idMesa: string): void {
-  // Exibe uma mensagem de confirmação para o usuário
+ finalizarMesa(idMesa: string): void {
   const confirmar = window.confirm('Você tem certeza que deseja finalizar a mesa?');
 
-  // Se o usuário clicar em "Sim", a mesa é finalizada
   if (confirmar) {
-    // Agora não precisa passar o status, ele já é "Finalizada" por padrão
-    this.mesaService.atualizarStatusMesa(idMesa).subscribe(
-      (response) => {
-        console.log('Mesa finalizada com sucesso', response);
-        // Atualize a lista ou faça outra ação após a mesa ser finalizada
-      },
-      (error) => {
-        console.error('Erro ao finalizar mesa', error);
-      }
-    );
+    // Finaliza a mesa, chamando o serviço de atualização de status
+    this.mesaService.atualizarStatusMesa(idMesa).subscribe((response) => {
+      console.log('Mesa finalizada com sucesso', response);
+
+      // Após finalizar a mesa, cria a venda
+      this.mesaService.getMesaById(idMesa).subscribe((mesa) => {
+        // Cria a venda com os dados da mesa
+        const venda: Venda = {
+          id_venda: 0, // Gerar o ID conforme a lógica da sua API
+          id_mesa: mesa.id_mesa,
+          numero_mesa: mesa.numero,
+          total: mesa.totalConsumo, // Assume que o total de consumo já está na mesa
+          data_venda: new Date().toISOString().slice(0, 19).replace('T', ' '),  // Converte para o formato correto
+          nota: '001',  // Ajuste conforme necessário
+          status_venda: 'Finalizada',
+          tipo_pagamento: 'CARTAO',  // Deve ser um valor válido: 'CARTAO', 'DINHEIRO' ou 'PIX'
+          movimento: null // Defina o movimento conforme necessário
+        };
+
+        // Chama o serviço para registrar a venda
+        this.VendasService.addVenda(venda).subscribe(
+          (response) => {
+            console.log('Venda registrada com sucesso', response);
+          },
+          (error) => {
+            console.error('Erro ao registrar venda', error);
+          }
+        );
+      });
+    }, (error) => {
+      console.error('Erro ao finalizar mesa', error);
+    });
   } else {
-    // Caso o usuário clique em "Não", exibe um log ou uma mensagem de cancelamento
     console.log('Finalização da mesa cancelada');
   }
 }

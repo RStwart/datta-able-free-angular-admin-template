@@ -11,7 +11,6 @@
               <h5 class="card-title fw-bold">Mesa: {{ pedido.numero }}</h5>
           
               <!-- Lista de produtos do pedido -->
-               
               <ul class="list-unstyled">
                 <li *ngFor="let produto of pedido.produtos">
                   <h5 class="card-title fw-bold">{{ produto.quantidade }} - {{ produto.nome }} - R$ {{ produto.preco.toFixed(2) }}</h5>

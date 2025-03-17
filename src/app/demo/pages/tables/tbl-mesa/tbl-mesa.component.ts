@@ -199,12 +199,12 @@ export class TblMesasComponent implements OnInit {
       const pedido: Pedido = {
         id_pedido: 0,  // Este ID será gerado pelo backend
         id_mesa: this.mesaSelecionada.id_mesa,
-        numero: this.mesaSelecionada.numero,
         data: new Date().toISOString().slice(0, 19).replace('T', ' '),  // Formato correto para o MySQL
         status: 'Solicitado',  // Status do pedido
         total: totalPedido,  // O total calculado do pedido
         item: itensFormatados, // Enviando a string formatada
         observacao: this.observacao || '',  // Adicionando a observação
+        numero: this.mesaSelecionada.numero,
       };
   
       console.log('Pedido enviado:', pedido);  // Verifique se o pedido está correto

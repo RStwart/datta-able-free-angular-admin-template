@@ -29,58 +29,63 @@ export class TblPedidosComponent implements OnInit {
     this.carregarPedidos();
   }
 
-  
   carregarPedidos() {
     this.pedidoService.getPedidos().subscribe(
       (pedidos) => {
-        console.log('Pedidos recebidos:', pedidos);
-    
+        console.log('Pedidos recebidos:', pedidos); // Verifique a estrutura completa aqui.
+  
         if (pedidos && pedidos.length > 0) {
           // Mapeando os pedidos para incluir a lista de produtos de forma organizada
           this.pedidosComProdutos = pedidos.map((pedido: Pedido) => {
             try {
               const produtosString = pedido.item;  // String com os produtos
-              if (produtosString && typeof produtosString === 'string') {
-                console.log('Entrou aqui');
+              const numeroMesa = (pedido as any).num_mesa;  // Acessa num_mesa com casting
   
+              console.log('Número da Mesa:', numeroMesa); // Verifica o número da mesa
+  
+              if (produtosString && typeof produtosString === 'string') {
                 // Converte a string de produtos em um array de objetos de produtos
                 const produtos = produtosString.split(';').map((produtoStr: string) => {
-                  console.log('PRODUTOS:', produtoStr);
-  
                   // Remove qualquer espaço extra usando trim()
                   const [id, nome, quantidade, preco] = produtoStr.split('|').map((campo) => campo.trim());
-  
-                  // Log para verificar se os valores estão sendo extraídos corretamente
-                  console.log('ID:', id, 'Nome:', nome, 'Quantidade:', quantidade, 'Preço:', preco);
   
                   // Verifica se a quantidade e o preço são válidos
                   const quantidadeValida = !isNaN(parseInt(quantidade, 10)) ? parseInt(quantidade, 10) : 0;
                   const precoValido = !isNaN(parseFloat(preco)) ? parseFloat(preco) : 0;
   
                   return {
-                    id: id || 'ID desconhecido',  // ID do produto (adicionado)
+                    id: id || 'ID desconhecido',  // ID do produto
                     nome: nome || 'Produto desconhecido',  // Nome do produto
                     quantidade: quantidadeValida,
                     preco: precoValido,
                   };
                 });
   
-                // Atribui os produtos ao pedido
-                (pedido as PedidoComProdutos).produtos = produtos;
+                // Retorna o pedido com a lista de produtos e o número da mesa
+                return {
+                  ...pedido,
+                  produtos,
+                  numero: numeroMesa, // Aqui, você associa o número da mesa corretamente no pedido
+                };
               } else {
-                (pedido as PedidoComProdutos).produtos = [];  // Se não houver produtos válidos
+                return {
+                  ...pedido,
+                  produtos: [], // Se não houver produtos válidos
+                };
               }
+  
             } catch (e) {
               console.error('Erro ao converter pedido.item:', e);
-              (pedido as PedidoComProdutos).produtos = [];
+              return {
+                ...pedido,
+                produtos: [], // Caso ocorra um erro, retorna o pedido sem produtos
+              };
             }
-    
-            return pedido as PedidoComProdutos;  // Retorna o pedido com a lista de produtos
           });
-    
+  
           // Atualiza a paginação após carregar os pedidos
           this.atualizarPaginacao();
-          console.log('Pedidos com produtos:', this.pedidosComProdutos);
+          console.log('Pedidos com produtos:', this.pedidosComProdutos); // Verifique se a estrutura final está correta.
         } else {
           console.log('Nenhum pedido encontrado!');
         }
@@ -92,6 +97,8 @@ export class TblPedidosComponent implements OnInit {
       }
     );
   }
+  
+  
   
   
 

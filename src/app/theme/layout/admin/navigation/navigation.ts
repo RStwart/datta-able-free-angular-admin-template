@@ -171,22 +171,22 @@ const NavigationItems = [
       }
     ]
   },
-  {
-    id: 'pdv',
-    title: 'pdv',
-    type: 'group',
-    icon: 'icon-group',
-    children: [
-      {
-        id: 'pdv',
-        title: 'pdv',
-        type: 'item',
-        url: '/vendas/pdv',
-        classes: 'nav-item',
-        icon: 'feather icon-power'
-      }
-    ]
-  },
+  // {
+  //   id: 'pdv',
+  //   title: 'pdv',
+  //   type: 'group',
+  //   icon: 'icon-group',
+  //   children: [
+  //     {
+  //       id: 'pdv',
+  //       title: 'pdv',
+  //       type: 'item',
+  //       url: '/vendas/pdv',
+  //       classes: 'nav-item',
+  //       icon: 'feather icon-power'
+  //     }
+  //   ]
+  // },
   // {
   //   id: 'chart-maps',
   //   title: 'Chart',

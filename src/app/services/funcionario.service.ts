@@ -6,7 +6,8 @@ import { Observable } from 'rxjs';
   providedIn: 'root',
 })
 export class FuncionarioService {
-  private apiUrl = 'http://localhost:5000/api'; // Defina a URL base da sua API
+  
+  private apiUrl = 'http://192.168.99.100:5000/api'; // URL base da API
 
   constructor(private http: HttpClient) {}
 

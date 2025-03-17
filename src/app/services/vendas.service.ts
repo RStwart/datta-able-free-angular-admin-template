@@ -1,22 +1,16 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
-
-export interface Venda {
-  id_venda?: number; // Código único da venda, opcional ao criar
-  valor: number; // Valor total da venda
-  metodo_pagamento: string; // Método de pagamento
-  horario: string; // Horário da venda (formato HH:mm:ss)
-  dia: string; // Data da venda (formato yyyy-MM-dd)
-  funcionario?: string; // Nome ou identificador do funcionário
-  status?: 'pendente' | 'concluida' | 'cancelada'; // Status da venda
-}
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { Observable, throwError } from 'rxjs';
+import { catchError } from 'rxjs/operators';
+import { Venda } from 'src/app/interfaces/vendas.interface';  // Importe a interface de Venda
 
 @Injectable({
   providedIn: 'root',
 })
+
 export class VendasService {
-  private apiUrl = 'http://localhost:5000/api/vendas'; // URL base da API para vendas
+
+  private apiUrl = 'http://192.168.99.100:5000/api/vendas'; // URL base da API de vendas
 
   constructor(private http: HttpClient) {}
 
@@ -26,7 +20,8 @@ export class VendasService {
    * @returns Observable com mensagem de sucesso e ID da venda criada.
    */
   registrarVenda(venda: Venda): Observable<{ message: string; id_venda: number }> {
-    return this.http.post<{ message: string; id_venda: number }>(this.apiUrl, venda);
+    return this.http.post<{ message: string; id_venda: number }>(this.apiUrl, venda)
+      .pipe(catchError(this.handleError));
   }
 
   /**
@@ -34,7 +29,8 @@ export class VendasService {
    * @returns Observable com a lista de vendas.
    */
   listarVendas(): Observable<Venda[]> {
-    return this.http.get<Venda[]>(this.apiUrl);
+    return this.http.get<Venda[]>(this.apiUrl)
+      .pipe(catchError(this.handleError));
   }
 
   /**
@@ -43,7 +39,8 @@ export class VendasService {
    * @returns Observable com os detalhes da venda.
    */
   obterVenda(id_venda: number): Observable<Venda> {
-    return this.http.get<Venda>(`${this.apiUrl}/${id_venda}`);
+    return this.http.get<Venda>(`${this.apiUrl}/${id_venda}`)
+      .pipe(catchError(this.handleError));
   }
 
   /**
@@ -53,7 +50,8 @@ export class VendasService {
    * @returns Observable com a mensagem de sucesso.
    */
   atualizarVenda(id_venda: number, venda: Venda): Observable<{ message: string }> {
-    return this.http.put<{ message: string }>(`${this.apiUrl}/${id_venda}`, venda);
+    return this.http.put<{ message: string }>(`${this.apiUrl}/${id_venda}`, venda)
+      .pipe(catchError(this.handleError));
   }
 
   /**
@@ -63,8 +61,9 @@ export class VendasService {
    */
   cancelarVenda(id_venda: number): Observable<{ message: string }> {
     return this.http.patch<{ message: string }>(`${this.apiUrl}/${id_venda}`, {
-      status: 'cancelada',
-    });
+      status_venda: 'cancelada',  // Atualizando o status para "cancelada"
+    })
+    .pipe(catchError(this.handleError));
   }
 
   /**
@@ -73,6 +72,30 @@ export class VendasService {
    * @returns Observable com a mensagem de sucesso.
    */
   deletarVenda(id_venda: number): Observable<{ message: string }> {
-    return this.http.delete<{ message: string }>(`${this.apiUrl}/${id_venda}`);
+    return this.http.delete<{ message: string }>(`${this.apiUrl}/${id_venda}`)
+      .pipe(catchError(this.handleError));
+  }
+
+  /**
+   * Método para tratar erros de requisição HTTP.
+   * @param error Erro ocorrido durante a requisição.
+   * @returns Observable com uma mensagem de erro.
+   */
+  private handleError(error: HttpErrorResponse) {
+    let errorMessage = 'Erro desconhecido!';
+
+    if (error.error instanceof ErrorEvent) {
+      // Erro do lado do cliente
+      errorMessage = `Erro: ${error.error.message}`;
+    } else {
+      // Erro do lado do servidor
+      errorMessage = `Código de erro: ${error.status}, Mensagem: ${error.message}`;
+    }
+
+    // Logando o erro no console
+    console.error(errorMessage);
+
+    // Retornando o erro como Observable
+    return throwError(() => new Error(errorMessage));
   }
 }

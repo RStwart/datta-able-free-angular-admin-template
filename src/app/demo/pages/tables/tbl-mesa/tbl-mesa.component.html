@@ -14,7 +14,8 @@
               <div class="d-flex justify-content-between">
                 <!-- <button class="btn btn-danger btn-lg" (click)="excluirMesa(mesa.id_mesa)">Excluir</button> -->
                 <button class="btn btn-primary btn-lg" (click)="abrirModalAdicionarPedido(mesa)">Adicionar Pedido</button>
-                <button class="btn btn-info btn-lg" (click)="abrirModalDetalhes(mesa)">Ver Detalhes</button>
+                <button class="btn btn-primary btn-lg" (click)="finalizarMesa(mesa.id_mesa.toString())">Finalizar Mesa</button>
+                <button class="btn btn-primary btn-lg" (click)="abrirModalDetalhes(mesa)">Ver Detalhes</button>
               </div>
 
             </div>
@@ -45,9 +46,8 @@
         <div class="form-group">
           <label for="status">Status</label>
           <select id="status" [(ngModel)]="novaMesa.status" name="status" class="form-control" required>
-            <option value="Solicitado">Solicitado</option>
-            <option value="Em andamento">Em andamento</option>
-            <option value="Concluído">Concluído</option>
+            <option value="Aberta">Aberta</option>
+            <option value="Finalizada">Finalizada</option>
           </select>
         </div>
 
@@ -184,7 +184,6 @@
       <div class="modal-footer" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
         <h6 style="font-size: 1.5rem; margin-right: auto;"><strong>Total da Mesa:</strong> R$ {{ mesaSelecionada?.totalConsumo | currency: 'BRL' }}</h6>
         <div style="display: flex; gap: 10px;">
-          <button class="btn btn-primary" (click)="fecharModals()">Finalizar Mesa</button>
           <button class="btn btn-success" (click)="imprimirHistoricoMesa()">Imprimir historico</button>
           <button class="btn btn-secondary" (click)="fecharModals()">Fechar</button>
         </div>

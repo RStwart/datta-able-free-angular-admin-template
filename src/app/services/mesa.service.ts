@@ -37,6 +37,14 @@ export class MesaService {
   }
 
 
+  // Método para atualizar o status de uma mesa para "Finalizada"
+  atualizarStatusMesa(id: string): Observable<any> {
+    const url = `${this.apiUrl}/mesas/${id}/status`;  // A URL da sua API
+    const body = { status: 'Finalizada' };  // Corpo da requisição com o status "Finalizada"
+    return this.http.put(url, body);  // Requisição PUT para atualizar o status da mesa
+  }
+
+
    // Método para atualizar o total de consumo de uma mesa
    atualizarTotalConsumo(idMesa: string, novoTotalConsumo: number): Observable<any> {
     const url = `${this.apiUrl}/mesas/${idMesa}`;

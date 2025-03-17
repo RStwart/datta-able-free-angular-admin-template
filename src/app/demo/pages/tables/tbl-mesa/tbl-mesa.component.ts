@@ -27,7 +27,7 @@ export class TblMesasComponent implements OnInit {
   novaMesa: Mesa = {
     id_mesa: 0,
     numero: 0,
-    status: 'Solicitado',
+    status: 'Aberta',
     capacidade: 0,
     pedidos: [],
     totalConsumo: 0
@@ -83,7 +83,7 @@ export class TblMesasComponent implements OnInit {
     this.novaMesa = {
       id_mesa: 0,
       numero: 0,
-      status: 'Solicitado',
+      status: 'Aberta',
       capacidade: 0,
       pedidos: [],
       totalConsumo: 0
@@ -447,6 +447,29 @@ export class TblMesasComponent implements OnInit {
     this.mostrarModal = false;  // Se você também está controlando outros modais, defina como necessário
   }
 
+
+ // Função para finalizar a mesa com confirmação
+finalizarMesa(idMesa: string): void {
+  // Exibe uma mensagem de confirmação para o usuário
+  const confirmar = window.confirm('Você tem certeza que deseja finalizar a mesa?');
+
+  // Se o usuário clicar em "Sim", a mesa é finalizada
+  if (confirmar) {
+    // Agora não precisa passar o status, ele já é "Finalizada" por padrão
+    this.mesaService.atualizarStatusMesa(idMesa).subscribe(
+      (response) => {
+        console.log('Mesa finalizada com sucesso', response);
+        // Atualize a lista ou faça outra ação após a mesa ser finalizada
+      },
+      (error) => {
+        console.error('Erro ao finalizar mesa', error);
+      }
+    );
+  } else {
+    // Caso o usuário clique em "Não", exibe um log ou uma mensagem de cancelamento
+    console.log('Finalização da mesa cancelada');
+  }
+}
 
 
 

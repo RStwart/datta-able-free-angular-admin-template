@@ -269,7 +269,7 @@ app.get('/api/funcionarios', (req, res) => {
 
 // Rota GET para obter todas as mesas
 app.get('/api/mesas', (req, res) => {
-  db.query('SELECT * FROM mesa', (err, results) => {
+  db.query('SELECT * FROM mesa where status != "finalizada" ', (err, results) => {
     if (err) {
       console.error('Erro ao consultar as mesas:', err);
       res.status(500).json({ error: 'Erro ao obter mesas', details: err });
@@ -386,6 +386,31 @@ app.delete('/api/mesas/:id', (req, res) => {
     }
   });
 });
+
+// Rota PUT para atualizar o status da mesa para "Finalizada"
+app.put('/api/mesas/:id/status', (req, res) => {
+  const { id } = req.params; // Pega o id da mesa da URL
+
+  // Define diretamente o status como "Finalizada"
+  const status = 'Finalizada';
+
+  const query = `UPDATE mesa SET status = ? WHERE id_mesa = ?`;
+
+  db.query(query, [status, id], (err, result) => {
+    if (err) {
+      console.error('Erro ao atualizar status da mesa:', err);
+      return res.status(500).json({ error: 'Erro ao atualizar status da mesa' });
+    }
+
+    // Se não encontrou a mesa para atualizar
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: 'Mesa não encontrada' });
+    }
+
+    res.json({ message: 'Status da mesa atualizado com sucesso' });
+  });
+});
+
 
 
 // Rota POST para adicionar um novo pedido
@@ -512,6 +537,74 @@ app.delete('/api/pedidos/:id', (req, res) => {
     }
   });
 });
+
+
+// Rota para inserir uma nova venda
+app.post('/vendas', (req, res) => {
+  const { id_mesa, numero_mesa, total, data_venda, nota, status_venda, tipo_pagamento } = req.body;
+
+  // Valida os dados
+  if (!id_mesa || !numero_mesa || !total || !data_venda || !nota || !status_venda || !tipo_pagamento) {
+    return res.status(400).json({ error: 'Todos os campos são obrigatórios!' });
+  }
+
+  // Comando SQL para inserir os dados na tabela Vendas
+  const query = `
+    INSERT INTO Vendas (id_mesa, numero_mesa, total, data_venda, nota, status_venda, tipo_pagamento)
+    VALUES (?, ?, ?, ?, ?, ?, ?)
+  `;
+
+  // Executa o comando SQL
+  db.execute(query, [id_mesa, numero_mesa, total, data_venda, nota, status_venda, tipo_pagamento], (err, result) => {
+    if (err) {
+      console.error('Erro ao inserir dados na tabela Vendas:', err);
+      return res.status(500).json({ error: 'Erro ao processar a venda!' });
+    }
+
+    // Retorna uma resposta de sucesso
+    res.status(201).json({
+      message: 'Venda registrada com sucesso!',
+      venda_id: result.insertId
+    });
+  });
+});
+
+
+// Rota para recuperar todas as vendas
+app.get('/vendas', (req, res) => {
+  const query = 'SELECT * FROM Vendas';
+
+  db.execute(query, (err, result) => {
+    if (err) {
+      console.error('Erro ao buscar vendas:', err);
+      return res.status(500).json({ error: 'Erro ao recuperar as vendas!' });
+    }
+
+    res.status(200).json(result);
+  });
+});
+
+// Rota para recuperar uma venda específica por id_venda
+app.get('/vendas/:id_venda', (req, res) => {
+  const { id_venda } = req.params;
+
+  const query = 'SELECT * FROM Vendas WHERE id_venda = ?';
+
+  db.execute(query, [id_venda], (err, result) => {
+    if (err) {
+      console.error('Erro ao buscar venda:', err);
+      return res.status(500).json({ error: 'Erro ao recuperar a venda!' });
+    }
+
+    if (result.length === 0) {
+      return res.status(404).json({ message: 'Venda não encontrada!' });
+    }
+
+    res.status(200).json(result[0]);
+  });
+});
+
+
 
 
 // // Iniciar o servidor

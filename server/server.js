@@ -569,7 +569,7 @@ app.post('/api/vendas', (req, res) => {
 // Rota GET para listar todas as vendas
 app.get('/api/vendas', (req, res) => {
   // Query SQL para buscar todas as vendas
-  const query = 'SELECT * FROM vendas';
+  const query = 'SELECT * FROM vendas WHERE data_venda = CURDATE() ORDER BY id_venda DESC';
 
   db.query(query, (err, results) => {
     if (err) {

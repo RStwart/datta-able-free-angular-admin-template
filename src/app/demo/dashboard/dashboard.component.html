@@ -3,15 +3,15 @@
   <div class="col-xl-4 col-md-6">
     <app-card cardTitle="TOTAL EM DINHEIRO" cardClass="Recent-Users" blockClass="p-0">
       <div class="card-header borderless">
-        <h5 class="text-black">     R$ {{ totalGanhos | number:'1.2-2' }}</h5>
+        <h5 class="text-black">     R$ {{ totalDinheiro | number:'1.2-2' }}</h5>
       </div>
     </app-card>
   </div>
 
   <div class="col-xl-4 col-md-6">
-    <app-card cardTitle="TOTAL EM CARTÃO" cardClass="Recent-Users" blockClass="p-0">
+    <app-card cardTitle="TOTAL EM CARTÃO " cardClass="Recent-Users" blockClass="p-0">
       <div class="card-header borderless">
-        <h5 class="text-black">     R$ {{ totalGanhos | number:'1.2-2' }}</h5>
+        <h5 class="text-black"> Total : R$ {{ totalCartao | number:'1.2-2' }}</h5>
       </div>
     </app-card>
   </div>
@@ -20,7 +20,7 @@
   <div class="col-xl-4 col-md-6">
     <app-card cardTitle="TOTAL EM PIX" cardClass="Recent-Users" blockClass="p-0">
       <div class="card-header borderless">
-        <h5 class="text-black">     R$ {{ totalGanhos | number:'1.2-2' }}</h5>
+        <h5 class="text-black">     R$ {{ totalPix | number:'1.2-2' }}</h5>
       </div>
     </app-card>
   </div>
@@ -92,7 +92,7 @@
             </td>
             <!-- Ações -->
             <td>
-              <a href="javascript:" class="label theme-bg text-white f-12 rounded-pill" (click)="abrirModalDetalhes(venda)" >Aprovar</a>
+              <a href="javascript:" class="label theme-bg text-white f-12 rounded-pill" (click)="abrirModalDetalhes(venda)" >Ajustar</a>
             </td>
           </tr>
         </tbody>
@@ -106,15 +106,18 @@
   <div class="col-xl-4 col-md-6">
     <div class="card bg-c-blue">
       <div class="card-header borderless">
-        <h5 class="text-white">GANHOS</h5>
+        <h5 class="text-white">CAIXA DIARIO</h5>
       </div>
       <div class="card-block" style="padding: 0 25px">
         <div class="earning-text mb-0">
+          <span class="text-uppercase text-white d-block">TOTAL GANHOS</span>
           <h3 class="mb-2 text-white f-w-300">
             R$ {{ totalGanhos | number:'1.2-2' }}
             <i class="feather icon-arrow-up teal accent-3"></i>
           </h3>
-          <span class="text-uppercase text-white d-block">Total GANHOS</span>
+          <BR>
+          <h5 class="text-uppercase text-white d-block"> Credito : R$ {{ totalCartaoCredito | number:'1.2-2' }}</h5>
+          <h5 class="text-uppercase text-white d-block"> Debito : R$ {{ totalCartaoDebito | number:'1.2-2' }}</h5>
         </div>
         <div id="widget-line-chart" class="WidgetlineChart2 ChartShadow" style="height: 180px"></div>
       </div>

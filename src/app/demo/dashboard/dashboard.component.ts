@@ -18,6 +18,13 @@ export default class DashboardComponent implements OnInit {
   mostrarModalVendas: boolean = false; // Controla a visibilidade do modal
   vendaSelecionada: Venda | null = null; // Variável para armazenar a venda selecionada no modal
 
+  totalDinheiro: number = 0;
+  totalCartao: number = 0;
+  totalCartaoCredito: number = 0;
+  totalCartaoDebito: number = 0;
+  totalPix: number = 0;
+
+
   constructor(private vendasService: VendasService) {}
 
   ngOnInit(): void {
@@ -58,12 +65,34 @@ export default class DashboardComponent implements OnInit {
   }
   
 
-  // Método para calcular o total de ganhos
+
   calcularTotalGanhos(): void {
     this.totalGanhos = this.vendas
-      .map(venda => Number(venda.total) || 0) // Garante que os valores sejam numéricos
+      .map(venda => Number(venda.total) || 0)
       .reduce((soma, total) => soma + total, 0);
+  
+    // Totalização por tipo de pagamento
+    this.totalDinheiro = this.vendas
+      .filter(venda => venda.tipo_pagamento === 'DINHEIRO')
+      .reduce((soma, venda) => soma + (Number(venda.total) || 0), 0);
+  
+    this.totalPix = this.vendas
+      .filter(venda => venda.tipo_pagamento === 'PIX')
+      .reduce((soma, venda) => soma + (Number(venda.total) || 0), 0);
+  
+    // Separação de cartão em crédito e débito
+    this.totalCartaoCredito = this.vendas
+      .filter(venda => venda.tipo_pagamento === 'CARTAO' && venda.card_type === 'Credito')
+      .reduce((soma, venda) => soma + (Number(venda.total) || 0), 0);
+  
+    this.totalCartaoDebito = this.vendas
+      .filter(venda => venda.tipo_pagamento === 'CARTAO' && venda.card_type === 'Debito')
+      .reduce((soma, venda) => soma + (Number(venda.total) || 0), 0);
+  
+    // Soma total dos cartões (crédito + débito)
+    this.totalCartao = this.totalCartaoCredito + this.totalCartaoDebito;
   }
+  
 
   
   // Método para selecionar uma venda para exibir no modal

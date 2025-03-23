@@ -33,6 +33,31 @@ export default class DashboardComponent implements OnInit {
     });
   }
 
+
+  salvarVenda() {
+    // Verifica e ajusta o formato da data (YYYY-MM-DD) antes de enviar
+    if (this.vendaSelecionada && this.vendaSelecionada.data_venda) {
+      // Ajusta a data para o formato correto
+      this.vendaSelecionada.data_venda = new Date(this.vendaSelecionada.data_venda).toISOString().split('T')[0];
+    }
+
+    this.vendaSelecionada.status_venda = 'FINALIZADA';
+  
+    // Atualiza a venda via serviço
+    this.vendasService.updateVenda(this.vendaSelecionada).subscribe(
+      (response) => {
+        console.log('Venda atualizada com sucesso:', response);
+        // Fechar modal ou realizar outras ações necessárias após sucesso
+        this.fecharModalVendas();
+      },
+      (error) => {
+        console.error('Erro ao atualizar a venda:', error);
+        // Aqui você pode adicionar um tratamento mais específico se necessário
+      }
+    );
+  }
+  
+
   // Método para calcular o total de ganhos
   calcularTotalGanhos(): void {
     this.totalGanhos = this.vendas

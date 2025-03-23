@@ -138,7 +138,8 @@
         <div><strong>Total:</strong> R$ {{ vendaSelecionada.total }}</div>
 
         <!-- Movimento (Select Editável) -->
-        <div>
+        <div class="my-3">
+
           <strong>Movimento:</strong>
           <select 
             class="form-control"
@@ -149,7 +150,8 @@
         </div>
 
         <!-- Tipo de Pagamento (Select Editável) -->
-        <div>
+        <div class="my-3">
+   
           <strong>Tipo de Pagamento:</strong>
           <select 
             class="form-control"
@@ -157,37 +159,38 @@
             <option value="CARTAO">Cartão</option>
             <option value="DINHEIRO">Dinheiro</option>
             <option value="PIX">PIX</option>
-            <option value="NA">Não Aplicável</option>
+            <option value="NA">Sem definição</option>
           </select>
         </div>
 
         <!-- Card Type (Select Editável) -->
-        <div *ngIf="vendaSelecionada.tipo_pagamento === 'CARTAO'">
+        <div  *ngIf="vendaSelecionada.tipo_pagamento === 'CARTAO'">
           <br>
-          <strong>Tipo de Type:</strong>
+          <strong>Tipo de operação:</strong>
           <select 
             class="form-control"
             [(ngModel)]="vendaSelecionada.card_type">
             <option value="Credito">Crédito</option>
             <option value="Debito">Débito</option>
-            <option value="NA">Não Aplicável</option>
+            <option value="NA">Sem definição</option>
           </select>
-
-
+        
           <br>
+
         <!-- Nota (Textarea Editável) -->
           <strong>Nota:</strong>
-          <textarea 
+          <input 
+            type="text" 
             class="form-control" 
-            [(ngModel)]="vendaSelecionada.nota"
+            [(ngModel)]="vendaSelecionada.nota" 
             placeholder="Digite a nota"
-            rows="2"
-          ></textarea>
+          />
         </div>
+
       </div>
 
-
       <div class="modal-footer">
+        <button type="button" class="btn btn-primary" (click)="salvarVenda()">Salvar</button>
         <button type="button" class="btn btn-secondary" (click)="fecharModalVendas()">Fechar</button>
       </div>
 

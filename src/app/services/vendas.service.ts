@@ -11,7 +11,7 @@ import { Observable } from 'rxjs';
 
 export class VendasService {
 
-  private apiUrl = 'http://192.168.99.100:5000/api'; // URL base da API
+  private apiUrl = 'http://192.168.99.102:5000/api'; // URL base da API
 
   constructor(private http: HttpClient) {}
 
@@ -24,5 +24,12 @@ export class VendasService {
    getVendas(): Observable<any> {
     return this.http.get(`${this.apiUrl}/vendas`);
   }
+
+  // 🔥 Método para atualizar uma venda
+  updateVenda(venda: any): Observable<any> {
+    return this.http.put(`${this.apiUrl}/vendas/${venda.id_venda}`, venda);
+  }
+
+
   
 }

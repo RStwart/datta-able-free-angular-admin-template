@@ -583,14 +583,36 @@ app.get('/api/vendas', (req, res) => {
 });
 
 
+// Rota PUT para atualizar uma venda
+app.put('/api/vendas/:id', (req, res) => {
+  const { id } = req.params;
+  const { id_mesa, numero_mesa, total, data_venda, hora_venda, nota, status_venda, tipo_pagamento, movimento, card_type } = req.body;
 
-// // Iniciar o servidor
-// app.listen(port, () => {
-//   console.log(`Servidor rodando em http://localhost:${port}`);
-// });
+  const query = `
+    UPDATE vendas
+    SET id_mesa = ?, numero_mesa = ?, total = ?, data_venda = ?, hora_venda = ?, nota = ?, status_venda = ?, tipo_pagamento = ?, movimento = ?, card_type = ?
+    WHERE id_venda = ?
+  `;
+  const values = [id_mesa, numero_mesa, total, data_venda, hora_venda, nota, status_venda, tipo_pagamento, movimento, card_type, id];
+
+  db.query(query, values, (err, result) => {
+    if (err) {
+      console.error('Erro ao atualizar venda:', err);
+      return res.status(500).json({ error: 'Erro ao atualizar venda' });
+    }
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: 'Venda não encontrada' });
+    }
+
+    console.log('Venda atualizada com sucesso:', id);
+    res.json({ message: 'Venda atualizada com sucesso' });
+  });
+});
+
 
 const ip = '0.0.0.0'; // Permite conexões externas
 
 app.listen(port, '0.0.0.0', () => {
-  console.log(`Servidor rodando em http://192.168.99.100:${port}`);
+  console.log(`Servidor rodando em http://192.168.99.102:${port}`);
 });

@@ -9,7 +9,7 @@ export class ProdutoService {
   
   // private apiUrl = 'http://localhost:5000/api'; // URL base da API
 
-  private apiUrl = 'http://192.168.99.100:5000/api'; // URL base da API
+  private apiUrl = 'http://192.168.99.102:5000/api'; // URL base da API
 
   constructor(private http: HttpClient) {}
 

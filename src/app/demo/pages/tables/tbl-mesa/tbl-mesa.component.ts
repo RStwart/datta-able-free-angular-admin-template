@@ -191,6 +191,7 @@ export class TblMesasComponent implements OnInit {
     if (this.mesaSelecionada) {
       // Calcular o total do pedido
       const totalPedido = this.calcularTotalPedido();
+
       console.log('ITEM ENVIADOS', this.mesaSelecionada.pedidos);
   
       // Criar a string personalizada para os itens do pedido
@@ -253,6 +254,11 @@ export class TblMesasComponent implements OnInit {
         }
       );
     }
+
+    setTimeout(() => {
+      window.location.reload();
+    }, 1000);
+
   }
   
   
@@ -333,6 +339,11 @@ export class TblMesasComponent implements OnInit {
     } else {
       this.toastr.warning('Por favor, preencha todos os campos.', 'Aviso');
     }
+
+    setTimeout(() => {
+      window.location.reload();
+    }, 1000);
+  
   }
 
 
@@ -452,47 +463,69 @@ export class TblMesasComponent implements OnInit {
   }
 
 
- // Função para finalizar a mesa com confirmação
- finalizarMesa(idMesa: string): void {
-  const confirmar = window.confirm('Você tem certeza que deseja finalizar a mesa?');
+  finalizarMesa(idMesa: string): void {
+    const confirmar = window.confirm('Você tem certeza que deseja finalizar a mesa?');
+  
+    if (confirmar) {
+      // Finaliza a mesa, chamando o serviço de atualização de status
+      this.mesaService.atualizarStatusMesa(idMesa).subscribe((response) => {
+        console.log('Mesa finalizada com sucesso', response);
+  
+        // Após finalizar a mesa, cria a venda
+        this.mesaService.getMesaById(idMesa).subscribe((mesa) => {
+          
+          // Obtém a data e hora atual no horário local
+          const dataAtual = new Date();
 
-  if (confirmar) {
-    // Finaliza a mesa, chamando o serviço de atualização de status
-    this.mesaService.atualizarStatusMesa(idMesa).subscribe((response) => {
-      console.log('Mesa finalizada com sucesso', response);
+          // Para a data (no formato YYYY-MM-DD)
+          const data_venda = dataAtual.toISOString().slice(0, 10); // Exemplo: '2025-03-21'
 
-      // Após finalizar a mesa, cria a venda
-      this.mesaService.getMesaById(idMesa).subscribe((mesa) => {
-        // Cria a venda com os dados da mesa
-        const venda: Venda = {
-          id_venda: 0, // Gerar o ID conforme a lógica da sua API
-          id_mesa: mesa.id_mesa,
-          numero_mesa: mesa.numero,
-          total: mesa.totalConsumo, // Assume que o total de consumo já está na mesa
-          data_venda: new Date().toISOString().slice(0, 19).replace('T', ' '),  // Converte para o formato correto
-          nota: '001',  // Ajuste conforme necessário
-          status_venda: 'Finalizada',
-          tipo_pagamento: 'CARTAO',  // Deve ser um valor válido: 'CARTAO', 'DINHEIRO' ou 'PIX'
-          movimento: null // Defina o movimento conforme necessário
-        };
+          // Para a hora (no formato HH:MM:SS)
+          const hora_venda = dataAtual.toLocaleTimeString('pt-BR', { hour12: false }); // Exemplo: '10:16:07'
 
-        // Chama o serviço para registrar a venda
-        this.VendasService.addVenda(venda).subscribe(
-          (response) => {
-            console.log('Venda registrada com sucesso', response);
-          },
-          (error) => {
-            console.error('Erro ao registrar venda', error);
-          }
-        );
+  
+          // Cria a venda com os dados da mesa
+          const venda: Venda = {
+            id_venda: 0, // Gerar o ID conforme a lógica da sua API
+            id_mesa: mesa.id_mesa,
+            numero_mesa: mesa.numero,
+            total: mesa.totalConsumo, // Assume que o total de consumo já está na mesa
+            data_venda: data_venda, // Passa a data separada
+            hora_venda: hora_venda, // Passa a hora separada
+            nota: '000',  // Ajuste conforme necessário
+            status_venda: 'PENDENTE',
+            tipo_pagamento: 'NA',  // Deve ser um valor válido: 'CARTAO', 'DINHEIRO' , 'PIX' ou NA
+            movimento: 'entrada',  // Defina o movimento conforme necessário
+            card_type: 'NA'  // Exemplo de valor para card_type, ajuste conforme necessário
+          };
+  
+          // Chama o serviço para registrar a venda
+          this.VendasService.addVenda(venda).subscribe(
+            (response) => {
+              console.log('Venda registrada com sucesso', response);
+            },
+            (error) => {
+              console.error('Erro ao registrar venda', error);
+            }
+          );
+        });
+
+        // setTimeout(() => {
+        //   window.location.reload();
+        // }, 800);
+
+
+      }, (error) => {
+        console.error('Erro ao finalizar mesa', error);
       });
-    }, (error) => {
-      console.error('Erro ao finalizar mesa', error);
-    });
-  } else {
-    console.log('Finalização da mesa cancelada');
+    } else {
+      console.log('Finalização da mesa cancelada');
+    }
+
+
+
   }
-}
+  
 
 
 

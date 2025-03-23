@@ -1,63 +1,106 @@
 <div class="row">
 
   <div class="col-xl-4 col-md-6">
-    <app-card cardTitle="Tipo de movimento" cardClass="Recent-Users" blockClass="p-0">
-      
-    </app-card>
-  </div>
-
-  <div class="col-xl-4 col-md-6">
-    <app-card cardTitle="Tipo de movimento" cardClass="Recent-Users" blockClass="p-0">
-      
-    </app-card>
-  </div>
-
-
-  <div class="col-xl-4 col-md-6">
-    <app-card cardTitle="Tipo de movimento" cardClass="Recent-Users" blockClass="p-0">
-      
-    </app-card>
-  </div>
-
-
-  <!-- Últimas Vendas -->
-  <div class="col-xl-8 col-md-6">
-    <app-card cardTitle="Últimas Vendas" cardClass="Recent-Users" blockClass="p-0">
-      <div class="table-responsive">
-        <table class="table table-hover mb-0">
-          <tbody>
-            <tr *ngFor="let venda of vendas">
-              <td>
-                <h6 class="mb-1">Mesa {{ venda.numero_mesa }}</h6>
-              </td>
-              <td>
-                <p class="m-0">Total: R$ {{ venda.total | number:'1.2-2' }}</p>
-              </td>
-              <td>
-                <p class="m-0">Pagamento: {{ venda.tipo_pagamento }}</p>
-              </td>
-              <td>
-                <h6 class="text-muted">
-                  <i class="fas fa-circle" 
-                     [ngClass]="{
-                       'text-success': venda.status_venda === 'FINALIZADO',
-                       'text-warning': venda.status_venda === 'PENDENTE',
-                       'text-danger': venda.status_venda === 'CANCELADO'
-                     }">
-                  </i>
-                  {{ venda.data_venda | date:'dd/MM/yyyy HH:mm':'GMT-3' }}
-                </h6>
-              </td>
-              <td>
-                <a href="javascript:" class="label theme-bg2 text-white f-12 rounded-pill">Rejeitar</a>
-                <a href="javascript:" class="label theme-bg text-white f-12 rounded-pill">Aprovar</a>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+    <app-card cardTitle="TOTAL EM DINHEIRO" cardClass="Recent-Users" blockClass="p-0">
+      <div class="card-header borderless">
+        <h5 class="text-black">     R$ {{ totalGanhos | number:'1.2-2' }}</h5>
       </div>
     </app-card>
   </div>
+
+  <div class="col-xl-4 col-md-6">
+    <app-card cardTitle="TOTAL EM CARTÃO" cardClass="Recent-Users" blockClass="p-0">
+      <div class="card-header borderless">
+        <h5 class="text-black">     R$ {{ totalGanhos | number:'1.2-2' }}</h5>
+      </div>
+    </app-card>
+  </div>
+
+
+  <div class="col-xl-4 col-md-6">
+    <app-card cardTitle="TOTAL EM PIX" cardClass="Recent-Users" blockClass="p-0">
+      <div class="card-header borderless">
+        <h5 class="text-black">     R$ {{ totalGanhos | number:'1.2-2' }}</h5>
+      </div>
+    </app-card>
+  </div>
+
+<!-- Últimas Vendas -->
+<div class="col-xl-8 col-md-6">
+  <app-card cardTitle="Últimas Vendas" cardClass="Recent-Users" blockClass="p-0">
+    <div class="table-responsive">
+      <table class="table table-hover mb-0">
+        <thead>
+          <tr>
+            <th>Mesa</th>
+            <th>Total (R$)</th>
+            <th>Pagamento</th>
+            <th>Tipo do Cartão</th>
+            <th>Movimento</th>
+            <th>Data</th>
+            <th>Hora</th>
+            <th>Nota</th>
+            <th>Status</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let venda of vendas">
+            <!-- Número da Mesa -->
+            <td>
+              <h6 class="mb-1">Mesa {{ venda.numero_mesa }}</h6>
+            </td>
+            <!-- Total da Venda -->
+            <td>
+              <p class="m-0">R$ {{ venda.total | number:'1.2-2' }}</p>
+            </td>
+            <!-- Tipo de Pagamento -->
+            <td>
+              <p class="m-0">{{ venda.tipo_pagamento }}</p>
+            </td>
+            <!-- Tipo do Cartão -->
+            <td>
+              <p class="m-0">{{ venda.card_type }}</p>
+            </td>
+            <!-- Movimento -->
+            <td>
+              <p class="m-0">{{ venda.movimento || 'NA' }}</p>
+            </td>
+            <!-- Data da Venda -->
+            <td>
+              <p class="m-0">{{ venda.data_venda | date: 'dd/MM/yyyy' }}</p>
+            </td>
+            <!-- Hora da Venda -->
+            <td>
+              <p class="m-0">{{ venda.hora_venda }}</p>
+            </td>
+            <!-- Nota -->
+            <td>
+              <p class="m-0">{{ venda.nota }}</p>
+            </td>
+            <!-- Status da Venda -->
+            <td>
+              <h6 class="text-muted">
+                <i class="fas fa-circle" 
+                  [ngClass]="{
+                    'text-success': venda.status_venda == 'FINALIZADA',
+                    'text-warning': venda.status_venda == 'PENDENTE',
+                    'text-danger': venda.status_venda == 'CANCELADA'
+                  }">
+                </i> {{ venda.status_venda }}
+              </h6>
+            </td>
+            <!-- Ações -->
+            <td>
+              <a href="javascript:" class="label theme-bg text-white f-12 rounded-pill" (click)="abrirModalDetalhes(venda)" >Aprovar</a>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </app-card>
+</div>
+
   
   <!-- Total de Ganhos -->
   <div class="col-xl-4 col-md-6">
@@ -78,6 +121,79 @@
     </div>
   </div>
 
-  
 
 </div>
+
+<div class="modal" *ngIf="mostrarModalVendas">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Detalhes da Venda</h5>
+      </div>
+      <div class="modal-body">
+        <div><strong>ID da Venda:</strong> {{ vendaSelecionada.id_venda }}</div>
+        <div><strong>Número da Mesa:</strong> {{ vendaSelecionada.numero_mesa }}</div>
+        <div><strong>Data da Venda:</strong> {{ vendaSelecionada.data_venda | date:'dd/MM/yyyy' }}</div>
+        <div><strong>Hora da Venda:</strong> {{ vendaSelecionada.hora_venda }}</div>
+        <div><strong>Total:</strong> R$ {{ vendaSelecionada.total }}</div>
+
+        <!-- Movimento (Select Editável) -->
+        <div>
+          <strong>Movimento:</strong>
+          <select 
+            class="form-control"
+            [(ngModel)]="vendaSelecionada.movimento">
+            <option value="entrada">entrada</option>
+            <option value="saida">saida</option>
+          </select>
+        </div>
+
+        <!-- Tipo de Pagamento (Select Editável) -->
+        <div>
+          <strong>Tipo de Pagamento:</strong>
+          <select 
+            class="form-control"
+            [(ngModel)]="vendaSelecionada.tipo_pagamento">
+            <option value="CARTAO">Cartão</option>
+            <option value="DINHEIRO">Dinheiro</option>
+            <option value="PIX">PIX</option>
+            <option value="NA">Não Aplicável</option>
+          </select>
+        </div>
+
+        <!-- Card Type (Select Editável) -->
+        <div *ngIf="vendaSelecionada.tipo_pagamento === 'CARTAO'">
+          <br>
+          <strong>Tipo de Type:</strong>
+          <select 
+            class="form-control"
+            [(ngModel)]="vendaSelecionada.card_type">
+            <option value="Credito">Crédito</option>
+            <option value="Debito">Débito</option>
+            <option value="NA">Não Aplicável</option>
+          </select>
+
+
+          <br>
+        <!-- Nota (Textarea Editável) -->
+          <strong>Nota:</strong>
+          <textarea 
+            class="form-control" 
+            [(ngModel)]="vendaSelecionada.nota"
+            placeholder="Digite a nota"
+            rows="2"
+          ></textarea>
+        </div>
+      </div>
+
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="fecharModalVendas()">Fechar</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div class="modal-backdrop fade show" *ngIf="mostrarModalVendas"></div>
+

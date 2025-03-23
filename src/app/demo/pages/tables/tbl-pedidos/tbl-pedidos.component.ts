@@ -99,10 +99,6 @@ export class TblPedidosComponent implements OnInit {
   }
   
   
-  
-  
-
-
 
   atualizarPaginacao(): void {
     this.totalPages = Math.ceil(this.pedidosComProdutos.length / this.itemsPerPage);
@@ -178,6 +174,8 @@ export class TblPedidosComponent implements OnInit {
     } else {
       this.toastr.info('Status do pedido não alterado.', 'Info');
     }
+
+    window.location.reload();
   }
 
   cancelarPedido(pedido: Pedido, event: Event): void {

@@ -541,18 +541,19 @@ app.delete('/api/pedidos/:id', (req, res) => {
 
 // Rota POST para adicionar uma nova venda
 app.post('/api/vendas', (req, res) => {
-  const { id_mesa, numero_mesa, total, data_venda, nota, status_venda, tipo_pagamento, movimento } = req.body;
+  const { id_mesa, numero_mesa, total, data_venda, hora_venda, nota, status_venda, tipo_pagamento, movimento, card_type } = req.body;
 
-  // Insira a venda na tabela 'vendas'
-  const query = `
-    INSERT INTO vendas (id_mesa, numero_mesa, total, data_venda, nota, status_venda, tipo_pagamento, movimento)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-  `;
-  const values = [id_mesa, numero_mesa, total, data_venda, nota, status_venda, tipo_pagamento, movimento];
-
-  // Verificar os dados recebidos
+  // Verificar os dados recebidos (incluir a hora_venda e card_type agora)
   console.log('Dados recebidos para a venda:', req.body);
 
+  // Insira a venda na tabela 'vendas', agora incluindo o campo card_type
+  const query = `
+    INSERT INTO vendas (id_mesa, numero_mesa, total, data_venda, hora_venda, nota, status_venda, tipo_pagamento, movimento, card_type)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `;
+  const values = [id_mesa, numero_mesa, total, data_venda, hora_venda, nota, status_venda, tipo_pagamento, movimento, card_type];
+
+  // Executar a query no banco de dados
   db.query(query, values, (err, result) => {
     if (err) {
       console.error('Erro ao adicionar venda:', err);

@@ -47,7 +47,10 @@ app.use('/uploads', express.static('uploads'));
 
 // Rota POST para imprimir o pedido sem salvar no banco
 app.post('/api/imprimir-pedido', (req, res) => {
-  const { id_mesa,numero, total, item, observacao } = req.body;
+
+  console.log('Dados de impressao',req.body)
+
+  const { id_mesa,numero, total, item, observacao, nome_pe, endereco_pe, ordem_type_pe } = req.body;
 
   // Verificar se os dados necessários foram passados
   if (!id_mesa || !total || !item) {
@@ -62,12 +65,15 @@ app.post('/api/imprimir-pedido', (req, res) => {
 
   // Formatar o conteúdo do ticket (não vai para o banco)
   const content = `
-* Mesa: ${numero}           
-PEIDO:
+* MESA: ${numero} \n
+* NOME: ${nome_pe} \n
+* ORDEM: ${ordem_type_pe} \n
+* ENDEREÇO: ${endereco_pe} \n
+***************************************         
 ${itensArray.map(i => `* ${i.quantidade}X -- ${i.nome} `).join('\n')}  
-* Observação: ${observacao || 'Nenhuma'} 
 ***************************************
-`;
+\n Observação: ${observacao || 'Nenhuma'} 
+`.trim();
 
   // Caminho do arquivo temporário de ticket
   const filePath = path.resolve(__dirname, `ticket_temp_${id_mesa}.txt`);
@@ -103,7 +109,7 @@ ${itensArray.map(i => `* ${i.quantidade}X -- ${i.nome} `).join('\n')}
 
 // Rota POST para imprimir o histórico de pedidos de uma mesa
 app.post('/api/imprimir-historico-mesa', (req, res) => {
-  const { id_mesa, pedidos } = req.body;
+  const { id_mesa, pedidos, nome , endereco } = req.body;
 
   // Verificar se os dados necessários foram passados
   if (!id_mesa || !pedidos || pedidos.length === 0) {
@@ -112,7 +118,11 @@ app.post('/api/imprimir-historico-mesa', (req, res) => {
 
   // Formatar o conteúdo do histórico de pedidos
   let content = `Histórico de Pedidos - Mesa: ${id_mesa}\n`;
+  content += `Nome: ${nome}\n`;
+  content += `Endereço: ${endereco}\n`;
   content += '***************************************\n';
+
+  let totalGeral = 0;
 
   pedidos.forEach((pedido, index) => {
     content += `Pedido ${index + 1} - Data: ${new Date(pedido.data).toLocaleDateString()} ${new Date(pedido.data).toLocaleTimeString()}\n`;
@@ -120,6 +130,9 @@ app.post('/api/imprimir-historico-mesa', (req, res) => {
     
     // Garantir que pedido.total seja um número antes de usar toFixed()
     let total = parseFloat(pedido.total);
+    
+    totalGeral+= total;
+
     if (!isNaN(total)) {
       content += `Total: R$ ${total.toFixed(2)}\n`;
     } else {
@@ -140,6 +153,9 @@ app.post('/api/imprimir-historico-mesa', (req, res) => {
     content += `Observação: ${pedido.observacao || 'Nenhuma'}\n`;
     content += '***************************************\n\n';
   });
+
+  content += `TOTAL DO CONSUMO: R$ ${totalGeral.toFixed(2)}\n`;
+  content += '***************************************\n\n';
 
   // Caminho do arquivo temporário de ticket
   const filePath = path.resolve(__dirname, `ticket_temp_${id_mesa}.txt`);
@@ -170,8 +186,6 @@ app.post('/api/imprimir-historico-mesa', (req, res) => {
     res.status(200).json({ message: 'Histórico de pedidos impresso com sucesso' });
   });
 });
-
-
 
 
 // Rota GET para obter todos os produtos
@@ -297,12 +311,9 @@ app.get('/api/mesas/:id', (req, res) => {
 
 // Rota POST para adicionar uma nova mesa
 app.post('/api/mesas', (req, res) => {
-  const { numero, capacidade, status, pedidos, garcom, horaAbertura, totalConsumo } = req.body;
-  const query = 'INSERT INTO mesa (numero, capacidade, status, pedidos, garcom, horaAbertura, totalConsumo) VALUES (?, ?, ?, ?, ?, ?, ?)';
-  const values = [numero, capacidade, status, JSON.stringify(pedidos), garcom, horaAbertura, totalConsumo];
-
-
-  console.log(status, 'status');
+  const { numero, capacidade, status, pedidos, garcom, horaAbertura, totalConsumo,nome,ordem_type,endereco } = req.body;
+  const query = 'INSERT INTO mesa (numero, capacidade, status, pedidos, garcom, horaAbertura, totalConsumo, nome, ordem_type, endereco) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
+  const values = [numero, capacidade, status, JSON.stringify(pedidos), garcom, horaAbertura, totalConsumo, nome, ordem_type, endereco];
 
   db.query(query, values, (err, result) => {
     if (err) {

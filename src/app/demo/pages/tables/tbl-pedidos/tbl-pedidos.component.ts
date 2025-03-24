@@ -19,7 +19,7 @@ export class TblPedidosComponent implements OnInit {
   erro: string | null = null;
   
   currentPage: number = 1;
-  itemsPerPage: number = 5;
+  itemsPerPage: number = 6;
   totalPages: number = 0;
   pages: number[] = [];
 
@@ -175,7 +175,11 @@ export class TblPedidosComponent implements OnInit {
       this.toastr.info('Status do pedido não alterado.', 'Info');
     }
 
-    window.location.reload();
+    
+    setTimeout(() => {
+      window.location.reload();
+    }, 800);
+    
   }
 
   cancelarPedido(pedido: Pedido, event: Event): void {
@@ -194,5 +198,10 @@ export class TblPedidosComponent implements OnInit {
         }
       );
     }
+
+    setTimeout(() => {
+      window.location.reload();
+    }, 800);
+    
   }
 }

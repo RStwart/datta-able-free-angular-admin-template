@@ -25,7 +25,7 @@ export class TblProdutosComponent implements OnInit {
   mostrarFormulario = false;
 
   currentPage: number = 1;
-  itemsPerPage: number = 5;
+  itemsPerPage: number = 6;
   totalPages: number = 0;
   produtosPaginados: Produto[] = [];
   pages: number[] = [];

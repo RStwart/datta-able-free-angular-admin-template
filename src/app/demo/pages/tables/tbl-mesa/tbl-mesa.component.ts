@@ -31,16 +31,19 @@ export class TblMesasComponent implements OnInit {
     id_mesa: 0,
     numero: 0,
     status: 'Aberta',
-    capacidade: 0,
+    capacidade: 1,
     pedidos: [],
-    totalConsumo: 0
+    totalConsumo: 0,
+    ordem_type: 'Pedido',
+    nome:'Sem nome',
+    endereco:'',
   };
 
   mostrarFormulario = false; // Controle de exibição do formulário de adicionar mesa
   
   mesaEmEdicao: Mesa | null = null;
   currentPage: number = 1;
-  itemsPerPage: number = 5;
+  itemsPerPage: number = 6;
   totalPages: number = 0;
   mesasPaginadas: Mesa[] = [];
   pages: number[] = [];
@@ -90,7 +93,10 @@ export class TblMesasComponent implements OnInit {
       status: 'Aberta',
       capacidade: 0,
       pedidos: [],
-      totalConsumo: 0
+      totalConsumo: 0,
+      ordem_type: 'Pedido',
+      nome:'',
+      endereco:'',
     };
   }
 
@@ -199,17 +205,34 @@ export class TblMesasComponent implements OnInit {
         console.log('NOME DOS PEDIDOS', pedido);
         return `${pedido.id_produto}|${pedido.nome}|${pedido.quantidade}|${pedido.preco}`;
       }).join('; ');
+
+            // Obtém a data e hora atual no horário local
+      const dataAtual = new Date();
+
+      // Para a data (no formato YYYY-MM-DD)
+      const data_pedido = dataAtual.toISOString().slice(0, 10); // Exemplo: '2025-03-21'
+
+      // Para a hora (no formato HH:MM:SS)
+      const hora_pedido = dataAtual.toLocaleTimeString('pt-BR', { hour12: false }); // Exemplo: '10:16:07'
+
+      // Concatenar a data e a hora no formato correto para o MySQL (YYYY-MM-DD HH:MM:SS)
+      const dataHorapedido= `${data_pedido} ${hora_pedido}`;
+
+
   
       // Criar o objeto do pedido
       const pedido: Pedido = {
         id_pedido: 0,  // Este ID será gerado pelo backend
         id_mesa: this.mesaSelecionada.id_mesa,
-        data: new Date().toISOString().slice(0, 19).replace('T', ' '),  // Formato correto para o MySQL
+        data: dataHorapedido,
         status: 'Solicitado',  // Status do pedido
         total: totalPedido,  // O total calculado do pedido
         item: itensFormatados, // Enviando a string formatada
         observacao: this.observacao || '',  // Adicionando a observação
         numero: this.mesaSelecionada.numero,
+        nome_pe: this.mesaSelecionada.nome,
+        endereco_pe: this.mesaSelecionada.endereco,
+        ordem_type_pe: this.mesaSelecionada.ordem_type,
       };
   
       console.log('Pedido enviado:', pedido);  // Verifique se o pedido está correto
@@ -257,7 +280,7 @@ export class TblMesasComponent implements OnInit {
 
     setTimeout(() => {
       window.location.reload();
-    }, 1000);
+    }, 800);
 
   }
   
@@ -342,7 +365,7 @@ export class TblMesasComponent implements OnInit {
 
     setTimeout(() => {
       window.location.reload();
-    }, 1000);
+    }, 800);
   
   }
 
@@ -353,7 +376,7 @@ export class TblMesasComponent implements OnInit {
       return;
     }
   
-    this.pedidoService.imprimirHistoricoMesa(this.mesaSelecionada.numero, this.mesaSelecionada.pedidos).subscribe({
+    this.pedidoService.imprimirHistoricoMesa(this.mesaSelecionada.numero, this.mesaSelecionada.pedidos, this.mesaSelecionada.nome , this.mesaSelecionada.endereco).subscribe({
       next: (response) => {
         console.log('Histórico de pedidos impresso com sucesso!', response);
         alert('Histórico de pedidos impresso com sucesso!');
@@ -510,9 +533,9 @@ export class TblMesasComponent implements OnInit {
           );
         });
 
-        // setTimeout(() => {
-        //   window.location.reload();
-        // }, 800);
+        setTimeout(() => {
+          window.location.reload();
+        }, 800);
 
 
       }, (error) => {

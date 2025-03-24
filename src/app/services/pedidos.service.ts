@@ -62,8 +62,8 @@ export class PedidoService {
   }
 
   // Método para imprimir o histórico de pedidos de uma mesa
-  imprimirHistoricoMesa(mesaId: number, pedidos: any[]): Observable<any> {
-    const payload = { id_mesa: mesaId, pedidos: pedidos };
+  imprimirHistoricoMesa(mesaId: number, pedidos: any[],nome: string, endereco: string): Observable<any> {
+    const payload = { id_mesa: mesaId, pedidos: pedidos,nome: nome, endereco: endereco };
     return this.http.post(`${this.apiUrl}/imprimir-historico-mesa`, payload);
   }
   

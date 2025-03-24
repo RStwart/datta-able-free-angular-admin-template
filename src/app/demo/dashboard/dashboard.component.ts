@@ -62,6 +62,10 @@ export default class DashboardComponent implements OnInit {
         // Aqui você pode adicionar um tratamento mais específico se necessário
       }
     );
+
+    setTimeout(() => {
+      window.location.reload();
+    }, 800);
   }
   
 

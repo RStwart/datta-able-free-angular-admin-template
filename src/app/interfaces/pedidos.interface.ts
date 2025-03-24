@@ -15,4 +15,7 @@ export interface Pedido {
   total: number;               // Total do pedido (soma dos itens)
   item: string;                // Propriedade que armazena a string JSON com os produtos
   observacao: string;                // Propriedade que armazena a string JSON com os produtos
+  nome_pe: string;          // Nome da mesa
+  endereco_pe: string;      // Endedreço de entrega
+  ordem_type_pe: 'Pedido' | 'Retirada' | 'Entrega'; // Tipo de ordem
 }

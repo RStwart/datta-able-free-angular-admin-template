@@ -15,16 +15,29 @@ export class AuthService {
 
     return this.http.post(url, {}).pipe(
       tap(response => {
-        localStorage.setItem('authToken', JSON.stringify(response)); // Armazena o token
+        if (response && response.id) { // Valida se a resposta contém um ID (usuário válido)
+          console.log("✅ Login bem-sucedido:", response);
+          localStorage.setItem('user', JSON.stringify(response)); // Salva os dados do usuário
+        } else {
+          console.warn("⚠ Login falhou: resposta inválida", response);
+        }
       })
     );
   }
 
   isAuthenticated(): boolean {
-    return !!localStorage.getItem('authToken'); // Verifica se há token armazenado
+    const user = localStorage.getItem('user');
+    console.log("🔍 Verificando autenticação... Usuário:", user);
+    return user !== null; // Retorna `true` se houver um usuário salvo
+  }
+
+  getUser(): any {
+    const userData = localStorage.getItem('user');
+    return userData ? JSON.parse(userData) : null;
   }
 
   logout(): void {
-    localStorage.removeItem('authToken');
+    console.log("🚪 Saindo...");
+    localStorage.removeItem('user');
   }
 }

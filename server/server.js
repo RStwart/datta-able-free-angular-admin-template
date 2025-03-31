@@ -578,9 +578,9 @@ app.post('/api/vendas', (req, res) => {
 
 
 // Rota GET para listar todas as vendas
-app.get('/api/vendas', (req, res) => {
+app.get('/api/vendas', (req, res) => { 
   // Query SQL para buscar todas as vendas
-  const query = 'SELECT * FROM vendas WHERE data_venda = CURDATE() ORDER BY id_venda DESC';
+  const query = 'SELECT * FROM vendas WHERE (data_venda = CURDATE() AND hora_venda >= "18:00:00") OR (data_venda = DATE_ADD(CURDATE(), INTERVAL 1 DAY) AND hora_venda <= "06:00:00") ORDER BY id_venda DESC';
 
   db.query(query, (err, results) => {
     if (err) {

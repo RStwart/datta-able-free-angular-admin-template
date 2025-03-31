@@ -2,19 +2,20 @@ import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 import { AdminComponent } from './theme/layout/admin/admin.component';
 import { GuestComponent } from './theme/layout/guest/guest.component';
+import { AuthGuard } from './guards/auth.guard'; // Importa o AuthGuard
 
 const routes: Routes = [
   {
     path: '',
-    component: AdminComponent,
+    redirectTo: 'auth/login', // Agora redirecionamos para a tela de login
+    pathMatch: 'full'
+  },
+  {
+    path: 'dashboard',
+    component: AdminComponent,  canActivate: [AuthGuard], // 🔒 Protege esta rota com AuthGuard
     children: [
       {
         path: '',
-        redirectTo: 'dashboard',
-        pathMatch: 'full'
-      },
-      {
-        path: 'dashboard',
         loadComponent: () => import('./demo/dashboard/dashboard.component')
       },
       {
@@ -40,14 +41,18 @@ const routes: Routes = [
     ]
   },
   {
-    path: '',
+    path: 'auth',
     component: GuestComponent,
     children: [
       {
-        path: 'auth',
-        loadChildren: () => import('./demo/pages/authentication/authentication.module').then((m) => m.AuthenticationModule)
+        path: 'login',
+        loadComponent: () => import('./demo/pages/authentication/auth-signin/auth-signin.component')
       }
     ]
+  },
+  {
+    path: '**',
+    redirectTo: 'auth/login'
   }
 ];
 
